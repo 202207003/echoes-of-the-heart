@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>시와 어울리는 음악</title>
+    <style>
+        .container { max-width: 600px; margin: 50px auto; text-align: center; font-family: sans-serif; }
+        .poem-box { background: #f9f9f9; padding: 20px; border-radius: 10px; margin-bottom: 20px; border-left: 5px solid #007bff; }
+        .music-player { margin-top: 30px; padding: 20px; background: #eef2f7; border-radius: 10px; }
+        audio { width: 100%; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>당신의 시를 위한 음악</h2>
+        
+        <div class="poem-box">
+            <p th:text="${poem}">시 내용이 여기에 표시됩니다.</p>
+        </div>
+
+        <p><strong>분석된 음악 스타일:</strong> <span th:text="${style}">Style</span></p>
+
+        <div th:if="${hasMusic}" class="music-player">
+            <h3>🎵 추천 트랙 재생</h3>
+            <audio controls autoplay>
+                <source th:src="${audioUrl}" type="audio/mpeg">
+                브라우저가 오디오 재생을 지원하지 않습니다.
+            </audio>
+            <p style="font-size: 0.8rem; color: #666; margin-top: 10px;">
+                출처: Free To Use Music
+            </p>
+        </div>
+
+        <div th:unless="${hasMusic}">
+            <p>죄송합니다. 어울리는 음악을 찾지 못했습니다.</p>
+        </div>
+
+        <br>
+        <a href="/chat">다시 작성하기</a>
+    </div>
+</body>
+</html>

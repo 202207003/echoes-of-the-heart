@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Gemini에게 질문하기</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 50px; }
+        .chat-box { border: 1px solid #ccc; padding: 20px; border-radius: 10px; max-width: 500px; }
+        input[type="text"] { width: 70%; padding: 10px; border-radius: 5px; border: 1px solid #aaa; }
+        button { padding: 10px 20px; border-radius: 5px; background-color: #4CAF50; color: white; border: none; cursor: pointer; }
+        button:hover { background-color: #45a049; }
+    </style>
+</head>
+<body>
+    <div class="chat-box">
+        <h2>📜 시를 입력하면 음악을 찾아드려요</h2>
+        
+        <form action="/create-poem-music" method="get">
+            <input type="text" name="poem" placeholder="오늘 기분을 말해주세요!" required>
+            <button type="submit">감성 분석 및 음악 생성</button>
+        </form>
+    </div>
+</body>
+</html>

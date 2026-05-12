@@ -2,17 +2,20 @@ package com.springboot.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import java.util.*;
 
 @Service
+
 public class GeminiService {
-
-    private final String API_KEY = "AIzaSyDc-V_ReM6IVPy8H_ZkPnnv9cg_sDXtxl0";
- // 모델명 'gemini-2.5-flash'를 적용했습니다.
-    private final String API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=" + API_KEY;
-
+	@Value("${gemini.api.key}")
+    private String apiKey ;
+	
+	
     public String getGeminiResponse(String message) {
+    	 // 모델명 'gemini-2.5-flash'를 적용했습니다.
+        String apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=" + apiKey;
         RestTemplate restTemplate = new RestTemplate();
         Map<String, Object> requestBody = new HashMap<>();
         
@@ -29,7 +32,7 @@ public class GeminiService {
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
 
         try {
-            ResponseEntity<Map> response = restTemplate.postForEntity(API_URL, entity, Map.class);
+            ResponseEntity<Map> response = restTemplate.postForEntity(apiUrl, entity, Map.class);
             Map<String, Object> body = response.getBody();
             
             // JSON 파싱 (candidates -> content -> parts -> text)

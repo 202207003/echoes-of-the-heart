@@ -23,15 +23,18 @@ public class MusicGenerationService {
      * 1. 음악 검색 후 가장 적합한 트랙의 ID를 반환합니다.
      */
     public String generateMusic(String stylePrompt) {
-        String query = stylePrompt;
+        // 검색어에서 불필요한 앞뒤 공백 제거
+        String query = stylePrompt.trim();
         log.info("Free To Use 음악 검색 시작: {}", query);
 
         try {
             String response = webClient.get()
                     .uri(uriBuilder -> uriBuilder
                             .path("/music/tracks/search")
-                            .queryParam("q", query)
-                            .queryParam("per_page", 1) // 가장 유사한 1개만 요청
+                            .queryParam("query", query)
+                            .queryParam("per_page", 1)  // ✅ limit 대신 per_page가 더 정확할 수 있습니다.
+                            // ✅ 중요: .queryParam("order", "random")을 제거했습니다. 
+                            // 제거해야 검색어와 가장 연관성 높은(Relevancy) 곡이 1순위로 나옵니다.
                             .build())
                     .retrieve()
                     .bodyToMono(String.class)
@@ -41,9 +44,14 @@ public class MusicGenerationService {
             JsonNode data = root.path("data");
 
             if (data.isArray() && data.size() > 0) {
-                String trackId = data.get(0).path("id").asText();
-                log.info("검색 성공 - Track ID: {}", trackId);
+                JsonNode firstTrack = data.get(0);
+                String trackId = firstTrack.path("id").asText();
+                String title = firstTrack.path("title").asText(""); // 디버깅용 제목 추출
+
+                log.info("검색 성공 - 곡 제목: [{}], Track ID: {}", title, trackId);
                 return trackId;
+            } else {
+                log.warn("검색 결과가 없습니다: {}", query);
             }
         } catch (Exception e) {
             log.error("검색 중 오류 발생: {}", e.getMessage());
@@ -55,7 +63,7 @@ public class MusicGenerationService {
      * 2. 트랙 ID를 사용하여 실제 스트리밍 가능한 오디오 URL을 가져옵니다.
      */
     public String getAudioUrl(String trackId) {
-        if (trackId == null) return null;
+        if (trackId == null || trackId.isEmpty()) return null;
         
         log.info("상세 정보 조회 시작 - ID: {}", trackId);
         try {
@@ -71,7 +79,7 @@ public class MusicGenerationService {
             // ✅ 수정된 경로: data -> files -> mp3
             String fileUrl = data.path("files").path("mp3").asText("");
             
-            // 만약 mp3 필드가 비어있을 경우를 대비한 방어 로직 (선택 사항)
+            // 만약 mp3 필드가 비어있을 경우를 대비한 방어 로직
             if (fileUrl.isEmpty()) {
                 fileUrl = data.path("file_url").asText("");
             }

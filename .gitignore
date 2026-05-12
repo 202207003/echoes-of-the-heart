@@ -31,3 +31,6 @@ bin/
 .settings/
 .project
 .classpath
+
+# API KEY 보호
+src/main/resources/application.properties

@@ -15,7 +15,7 @@
         <h2>당신의 시를 위한 음악</h2>
         
         <div class="poem-box">
-            <p th:text="${poem}">시 내용이 여기에 표시됩니다.</p>
+            <p th:text="${generatedPoem}" style="white-space: pre-wrap;">시 내용이 여기에 표시됩니다.</p>
         </div>
 
         <p><strong>분석된 음악 스타일:</strong> <span th:text="${style}">Style</span></p>

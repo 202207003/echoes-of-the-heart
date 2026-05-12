@@ -2,23 +2,121 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Gemini에게 질문하기</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Poem Music AI</title>
+
     <style>
-        body { font-family: Arial, sans-serif; margin: 50px; }
-        .chat-box { border: 1px solid #ccc; padding: 20px; border-radius: 10px; max-width: 500px; }
-        input[type="text"] { width: 70%; padding: 10px; border-radius: 5px; border: 1px solid #aaa; }
-        button { padding: 10px 20px; border-radius: 5px; background-color: #4CAF50; color: white; border: none; cursor: pointer; }
-        button:hover { background-color: #45a049; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            font-family: 'Pretendard', sans-serif;
+            background: linear-gradient(135deg, #f7f9fc, #e9eef6);
+        }
+
+        .card {
+            width: 100%;
+            max-width: 760px;
+            background: white;
+            padding: 52px;
+            border-radius: 28px;
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.06);
+            text-align: center;
+            transition: 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.08);
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #222;
+            margin-bottom: 14px;
+            white-space: nowrap;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 34px;
+            line-height: 1.7;
+            font-size: 1rem;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 170px;
+            border: 1px solid #e3e6ee;
+            border-radius: 18px;
+            padding: 20px;
+            font-size: 1rem;
+            resize: none;
+            outline: none;
+            background: #fafbff;
+            transition: all 0.3s ease;
+        }
+
+        textarea:focus {
+            border-color: #6c63ff;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(108, 99, 255, 0.12);
+        }
+
+        button {
+            width: 100%;
+            margin-top: 22px;
+            padding: 17px;
+            border: none;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #6c63ff, #5a52e0);
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 20px rgba(108, 99, 255, 0.18);
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 14px 24px rgba(108, 99, 255, 0.24);
+        }
     </style>
 </head>
+
 <body>
-    <div class="chat-box">
-        <h2>📜 시를 입력하면 음악을 찾아드려요</h2>
-        
-        <form action="/create-poem-music" method="get">
-            <input type="text" name="poem" placeholder="오늘 기분을 말해주세요!" required>
-            <button type="submit">감성 분석 및 음악 생성</button>
-        </form>
-    </div>
+
+<div class="card">
+
+    <h1>🎵 시를 입력하면 음악을 추천해드려요</h1>
+
+    <p class="subtitle">
+        오늘의 감정, 짧은 시, 떠오르는 문장을 입력해보세요.<br>
+        AI가 분위기를 분석하고 어울리는 음악을 추천합니다.
+    </p>
+
+    <form action="/create-poem-music" method="get">
+        <textarea
+                name="poem"
+                placeholder="예) 오늘은 괜히 마음이 울적했다..."
+                required></textarea>
+
+        <button type="submit">
+            감성 분석 시작하기
+        </button>
+    </form>
+
+</div>
+
 </body>
 </html>

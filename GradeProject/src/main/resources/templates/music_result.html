@@ -2,41 +2,160 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>시와 어울리는 음악</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>추천 결과</title>
+
     <style>
-        .container { max-width: 600px; margin: 50px auto; text-align: center; font-family: sans-serif; }
-        .poem-box { background: #f9f9f9; padding: 20px; border-radius: 10px; margin-bottom: 20px; border-left: 5px solid #007bff; }
-        .music-player { margin-top: 30px; padding: 20px; background: #eef2f7; border-radius: 10px; }
-        audio { width: 100%; margin-top: 10px; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            padding: 60px 20px;
+            font-family: 'Pretendard', sans-serif;
+            background: linear-gradient(135deg, #f7f9fc, #e9eef6);
+            color: #222;
+        }
+
+        .container {
+            max-width: 850px;
+            margin: 0 auto;
+        }
+
+        .title {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 45px;
+            white-space: nowrap;
+        }
+
+        .card {
+            background: white;
+            border-radius: 28px;
+            padding: 42px;
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.08);
+        }
+
+        .poem-card {
+            margin-bottom: 28px;
+        }
+
+        .poem-text {
+            white-space: pre-line;
+            line-height: 2;
+            font-size: 1.1rem;
+            color: #444;
+            text-align: center;
+        }
+
+        .style-box {
+            margin-top: 28px;
+            text-align: center;
+            padding: 18px;
+            border-radius: 18px;
+            background: #f4f6ff;
+            color: #5a52e0;
+            font-weight: 600;
+        }
+
+        .music-card {
+            margin-top: 28px;
+        }
+
+        .music-title {
+            text-align: center;
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 22px;
+        }
+
+        audio {
+            width: 100%;
+            border-radius: 12px;
+        }
+
+        .source {
+            text-align: center;
+            margin-top: 14px;
+            font-size: 0.9rem;
+            color: #999;
+        }
+
+        .retry-btn {
+            display: block;
+            width: 230px;
+            margin: 42px auto 0;
+            padding: 16px;
+            border-radius: 16px;
+            text-align: center;
+            text-decoration: none;
+            font-weight: 600;
+            color: white;
+            background: linear-gradient(135deg, #6c63ff, #5a52e0);
+            box-shadow: 0 10px 20px rgba(108, 99, 255, 0.18);
+            transition: all 0.3s ease;
+        }
+
+        .retry-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 14px 24px rgba(108, 99, 255, 0.24);
+        }
+
+        .empty {
+            background: white;
+            padding: 35px;
+            border-radius: 24px;
+            text-align: center;
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.06);
+            color: #666;
+        }
     </style>
 </head>
+
 <body>
-    <div class="container">
-        <h2>당신의 시를 위한 음악</h2>
-        
-        <div class="poem-box">
-            <p th:text="${generatedPoem}" style="white-space: pre-wrap;">시 내용이 여기에 표시됩니다.</p>
+
+<div class="container">
+
+    <h1 class="title">🎧 당신의 시를 위한 음악</h1>
+
+    <div class="card poem-card">
+        <div class="poem-text" th:text="${generatedPoem}" style="white-space: pre-wrap;">시 내용</div>
+
+        <div class="style-box">
+            🎼 분석된 분위기 :
+            <span th:text="${style}"></span>
         </div>
-
-        <p><strong>분석된 음악 스타일:</strong> <span th:text="${style}">Style</span></p>
-
-        <div th:if="${hasMusic}" class="music-player">
-            <h3>🎵 추천 트랙 재생</h3>
-            <audio controls autoplay>
-                <source th:src="${audioUrl}" type="audio/mpeg">
-                브라우저가 오디오 재생을 지원하지 않습니다.
-            </audio>
-            <p style="font-size: 0.8rem; color: #666; margin-top: 10px;">
-                출처: Free To Use Music
-            </p>
-        </div>
-
-        <div th:unless="${hasMusic}">
-            <p>죄송합니다. 어울리는 음악을 찾지 못했습니다.</p>
-        </div>
-
-        <br>
-        <a href="/chat">다시 작성하기</a>
     </div>
+
+    <div th:if="${hasMusic}" class="card music-card">
+        <div class="music-title">🎵 추천 음악 재생</div>
+
+        <audio controls autoplay>
+            <source th:src="${audioUrl}" type="audio/mpeg">
+        </audio>
+
+        <div class="source">Free To Use Music</div>
+    </div>
+
+    <div th:unless="${hasMusic}" class="empty">
+        😢 어울리는 음악을 찾지 못했어요.
+    </div>
+
+    <a href="/chat" class="retry-btn">
+        다시 작성하기
+    </a>
+
+</div>
+
 </body>
 </html>

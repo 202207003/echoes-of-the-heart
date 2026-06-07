@@ -19,9 +19,6 @@ public class MusicGenerationService {
         this.webClient = webClientBuilder.baseUrl(BASE_URL).build();
     }
 
-    /**
-     * 1. 음악 검색 후 가장 적합한 트랙의 ID를 반환합니다.
-     */
     public String generateMusic(String stylePrompt) {
         // 검색어에서 불필요한 앞뒤 공백 제거
         String query = stylePrompt.trim();
@@ -32,9 +29,7 @@ public class MusicGenerationService {
                     .uri(uriBuilder -> uriBuilder
                             .path("/music/tracks/search")
                             .queryParam("query", query)
-                            .queryParam("per_page", 1)  // ✅ limit 대신 per_page가 더 정확할 수 있습니다.
-                            // ✅ 중요: .queryParam("order", "random")을 제거했습니다. 
-                            // 제거해야 검색어와 가장 연관성 높은(Relevancy) 곡이 1순위로 나옵니다.
+                            .queryParam("per_page", 1)
                             .build())
                     .retrieve()
                     .bodyToMono(String.class)
@@ -76,10 +71,8 @@ public class MusicGenerationService {
             JsonNode root = objectMapper.readTree(response);
             JsonNode data = root.path("data");
 
-            // ✅ 수정된 경로: data -> files -> mp3
             String fileUrl = data.path("files").path("mp3").asText("");
-            
-            // 만약 mp3 필드가 비어있을 경우를 대비한 방어 로직
+
             if (fileUrl.isEmpty()) {
                 fileUrl = data.path("file_url").asText("");
             }

@@ -95,9 +95,11 @@
 </head>
 
 <body>
-
+	<a th:href="@{/login}" class="top-login-btn">로그인</a>
+	<a th:href="@{/sign}" class="top-login-btn">회원가입</a>
 <div class="card">
-
+	
+	
     <h1>🎵 시를 입력하면 음악을 추천해드려요</h1>
 
     <p class="subtitle">
@@ -109,8 +111,8 @@
         <textarea
                 name="poem"
                 placeholder="예) 오늘은 괜히 마음이 울적했다..."
-                required></textarea>
-
+                required>
+        </textarea>
         <button type="submit">
             감성 분석 시작하기
         </button>

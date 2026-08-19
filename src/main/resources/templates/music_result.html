@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>추천 결과</title>
+    <title>추천 결과 - Poem Music AI</title>
 
     <style>
         * {
@@ -21,7 +21,7 @@
         }
 
         .container {
-            max-width: 850px;
+            max-width: 760px;
             margin: 0 auto;
         }
 
@@ -30,7 +30,6 @@
             font-size: 2rem;
             font-weight: 700;
             margin-bottom: 45px;
-            white-space: nowrap;
         }
 
         .card {
@@ -51,11 +50,13 @@
         }
 
         .poem-text {
-            white-space: pre-line;
-            line-height: 2;
-            font-size: 1.1rem;
-            color: #444;
+            white-space: pre-wrap;
+            line-height: 2.2;
+            font-size: 1.15rem;
+            color: #333;
             text-align: center;
+            padding: 20px 10px;
+            font-style: italic;
         }
 
         .style-box {
@@ -66,28 +67,37 @@
             background: #f4f6ff;
             color: #5a52e0;
             font-weight: 600;
+            font-size: 1rem;
         }
 
         .music-card {
             margin-top: 28px;
+            border: 1px solid #e3e6ee;
         }
 
         .music-title {
             text-align: center;
-            font-size: 1.3rem;
+            font-size: 1.25rem;
             font-weight: 600;
-            margin-bottom: 22px;
+            margin-bottom: 24px;
+        }
+
+        .audio-wrapper {
+            background: #fafbff;
+            padding: 20px;
+            border-radius: 20px;
+            border: 1px dashed #dbe1ec;
         }
 
         audio {
             width: 100%;
-            border-radius: 12px;
+            outline: none;
         }
 
         .source {
             text-align: center;
-            margin-top: 14px;
-            font-size: 0.9rem;
+            margin-top: 16px;
+            font-size: 0.85rem;
             color: #999;
         }
 
@@ -95,7 +105,7 @@
             display: block;
             width: 230px;
             margin: 42px auto 0;
-            padding: 16px;
+            padding: 17px;
             border-radius: 16px;
             text-align: center;
             text-decoration: none;
@@ -113,48 +123,49 @@
 
         .empty {
             background: white;
-            padding: 35px;
+            padding: 45px;
             border-radius: 24px;
             text-align: center;
             box-shadow: 0 12px 35px rgba(0, 0, 0, 0.06);
             color: #666;
         }
+
+        @media (max-width: 480px) {
+            .title { font-size: 1.6rem; }
+            .card { padding: 30px 20px; }
+        }
     </style>
 </head>
-
 <body>
 
 <div class="container">
-
     <h1 class="title">🎧 당신의 시를 위한 음악</h1>
 
-    <div class="card poem-card">
-        <div class="poem-text" th:text="${generatedPoem}" style="white-space: pre-wrap;">시 내용</div>
-
+    <div class="card poem-card" th:if="${generatedPoem != null}">
+        <div class="poem-text" th:text="${generatedPoem}">시 내용이 여기에 표시됩니다.</div>
         <div class="style-box">
-            🎼 분석된 분위기 :
-            <span th:text="${style}"></span>
+            🎼 분석된 분위기 : <span th:text="${style}">분위기</span>
         </div>
     </div>
 
     <div th:if="${hasMusic}" class="card music-card">
         <div class="music-title">🎵 추천 음악 재생</div>
-
-        <audio controls autoplay>
-            <source th:src="${audioUrl}" type="audio/mpeg">
-        </audio>
-
+        <div class="audio-wrapper">
+            <audio controls>
+                <source th:src="${audioUrl}" type="audio/mpeg">
+                브라우저가 오디오 태그를 지원하지 않습니다.
+            </audio>
+        </div>
         <div class="source">Free To Use Music</div>
     </div>
 
     <div th:unless="${hasMusic}" class="empty">
         😢 어울리는 음악을 찾지 못했어요.
     </div>
-
-    <a href="/chat" class="retry-btn">
-        다시 작성하기
-    </a>
-
+    
+	<img th:src="${thumbnailUrl}" alt="음악 썸네일">
+	
+    <a th:href="@{/}" class="retry-btn">다시 작성하기</a>
 </div>
 
 </body>

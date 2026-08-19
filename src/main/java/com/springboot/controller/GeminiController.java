@@ -29,7 +29,7 @@ public class GeminiController {
         String promptRequest = poem + "\n\n" +
                 "명령:\n" +
                 "1. 위 문장의 감정을 바탕으로 짧고 감성적인 시를 작성해.\n" +
-                "2. 마지막에는 음악 검색용 영어 키워드 2개를 쉼표(,)로 구분해서 출력해.\n\n" +
+                "2. 마지막에는 음악 검색용 영어 키워드를 쉼표(,)로 구분해서 출력해.\n\n" +
 
                 "출력 형식:\n" +
                 "[시]\n" +
@@ -41,8 +41,7 @@ public class GeminiController {
                 "1. 키워드는 영어만 사용\n" +
                 "2. 키워드는 반드시 마지막 줄에만 작성\n" +
                 "3. 설명이나 부가 문장은 절대 출력하지 마\n" +
-                "4. 검색이 잘 되도록 흔한 음악 감정 키워드 사용\n" +
-                "5. 키워드는 정확히 2개만 출력";
+                "4. 검색이 잘 되도록 흔한 음악 키워드 사용";
 
         // 2. Gemini 응답
         String response = geminiService.getGeminiResponse(promptRequest);
@@ -98,6 +97,7 @@ public class GeminiController {
         model.addAttribute("style", keywords);
         model.addAttribute("audioUrl", audioUrl);
         model.addAttribute("hasMusic", audioUrl != null && !audioUrl.isEmpty());
+        model.addAttribute("thumbnailUrl", musicService.getThumbnail(trackId));
 
         return "music_result";
     }

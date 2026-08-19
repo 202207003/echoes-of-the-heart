@@ -54,12 +54,9 @@ public class MusicGenerationService {
         return null;
     }
 
-    /**
-     * 2. 트랙 ID를 사용하여 실제 스트리밍 가능한 오디오 URL을 가져옵니다.
-     */
     public String getAudioUrl(String trackId) {
         if (trackId == null || trackId.isEmpty()) return null;
-        
+       
         log.info("상세 정보 조회 시작 - ID: {}", trackId);
         try {
             String response = webClient.get()
@@ -73,6 +70,7 @@ public class MusicGenerationService {
 
             String fileUrl = data.path("files").path("mp3").asText("");
 
+
             if (fileUrl.isEmpty()) {
                 fileUrl = data.path("file_url").asText("");
             }
@@ -81,6 +79,28 @@ public class MusicGenerationService {
             return fileUrl;
         } catch (Exception e) {
             log.error("상세 조회 중 오류 발생: {}", e.getMessage());
+            return null;
+        }
+    }
+   
+    public String getThumbnail(String trackId) {
+        if (trackId == null || trackId.isEmpty()) return null;
+       
+        log.info("상세 정보 조회 시작 - ID: {}", trackId);
+        try {
+            String response = webClient.get()
+                    .uri("/music/tracks/" + trackId)
+                    .retrieve()
+                    .bodyToMono(String.class)
+                    .block();
+
+            JsonNode root = objectMapper.readTree(response);
+            JsonNode data = root.path("data");
+
+            String thumbnail = data.path("thumbnails").path("lg").asText("");
+            log.info("썸네일 URL: {}", thumbnail);
+            return thumbnail;
+        } catch (Exception e) {
             return null;
         }
     }

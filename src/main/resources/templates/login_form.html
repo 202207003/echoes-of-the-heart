@@ -2,15 +2,138 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>로그인</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>로그인 - Poem Music AI</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            font-family: 'Pretendard', sans-serif;
+            background: linear-gradient(135deg, #f7f9fc, #e9eef6);
+        }
+
+        .card {
+            width: 100%;
+            max-width: 450px;
+            background: white;
+            padding: 52px 40px;
+            border-radius: 28px;
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.06);
+            transition: 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.08);
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #222;
+            margin-bottom: 34px;
+            text-align: center;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #4e5968;
+            margin-bottom: 8px;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 16px;
+            border: 1px solid #e3e6ee;
+            border-radius: 14px;
+            font-size: 1rem;
+            outline: none;
+            background: #fafbff;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            border-color: #6c63ff;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(108, 99, 255, 0.12);
+        }
+
+        button {
+            width: 100%;
+            margin-top: 14px;
+            padding: 17px;
+            border: none;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #6c63ff, #5a52e0);
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 20px rgba(108, 99, 255, 0.18);
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 14px 24px rgba(108, 99, 255, 0.24);
+        }
+
+        .extra-links {
+            margin-top: 24px;
+            text-align: center;
+        }
+
+        .extra-links a {
+            font-size: 0.85rem;
+            color: #8b95a1;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .extra-links a:hover {
+            color: #6c63ff;
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
+
+<div class="card">
     <h2>로그인</h2>
-	<form th:action="@{/login}" method="post">
-	    아이디: <input type="text" name="username" required> <br><br>
-	    비밀번호: <input type="password" name="password" required> <br><br>
-	    <button type="submit">로그인</button>
-	</form>
+    <form th:action="@{/login}" method="post">
+        <div class="input-group">
+            <label for="username">아이디</label>
+            <input type="text" id="username" name="username" placeholder="아이디를 입력해주세요" required>
+        </div>
+        <div class="input-group">
+            <label for="password">비밀번호</label>
+            <input type="password" id="password" name="password" placeholder="비밀번호를 입력해주세요" required>
+        </div>
+        <button type="submit">로그인</button>
+    </form>
+    <div class="extra-links">
+        <a th:href="@{/sign}">아직 계정이 없으신가요? 회원가입</a>
+    </div>
+</div>
+
 </body>
 </html>
-

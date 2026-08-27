@@ -38,6 +38,7 @@ public class MemberContorller {
 
 	    if(member.isPresent() && member.get().getPassword().equals(password)) {
         	session.setAttribute("username", member.get().getUsername());
+        	session.setAttribute("mbti", member.get().getMbti());
             return "redirect:/chat";
 	    }
 	    return "redirect:/login";

@@ -163,6 +163,10 @@
         😢 어울리는 음악을 찾지 못했어요.
     </div>
     
+    <h3 th:if="${trackTitle != null}" th:text="${trackTitle}">
+    음악 제목
+	</h3>
+	
 	<img th:src="${thumbnailUrl}" alt="음악 썸네일">
 	
     <a th:href="@{/}" class="retry-btn">다시 작성하기</a>

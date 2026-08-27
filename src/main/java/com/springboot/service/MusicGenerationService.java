@@ -104,4 +104,25 @@ public class MusicGenerationService {
             return null;
         }
     }
+    
+    public String getTrackTitle(String trackId) {
+        if (trackId == null || trackId.isEmpty()) return null;
+
+        try {
+            String response = webClient.get()
+                    .uri("/music/tracks/" + trackId)
+                    .retrieve()
+                    .bodyToMono(String.class)
+                    .block();
+
+            JsonNode root = objectMapper.readTree(response);
+            JsonNode data = root.path("data");
+
+            return data.path("title").asText("");
+
+        } catch (Exception e) {
+            log.error("곡 제목 조회 중 오류 발생: {}", e.getMessage());
+            return null;
+        }
+    }
 }

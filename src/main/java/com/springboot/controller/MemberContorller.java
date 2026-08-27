@@ -2,8 +2,9 @@ package com.springboot.controller;
 
 import com.springboot.repository.MemberRepository;
 
-import java.util.Optional;
 
+import java.util.Optional;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -32,15 +33,20 @@ public class MemberContorller {
 	}
 	
 	@PostMapping("/login")
-	public String login(@RequestParam("username") String username, @RequestParam("password") String password) {
+	public String login(@RequestParam("username") String username, @RequestParam("password") String password, HttpSession session) {
 	    Optional<Member> member = memberRepository.findByUsername(username);
 
-	    if(member.isPresent()) {
-	        if(member.get().getPassword().equals(password)) {
-	            return "redirect:/chat";
-	        }
+	    if(member.isPresent() && member.get().getPassword().equals(password)) {
+        	session.setAttribute("username", member.get().getUsername());
+            return "redirect:/chat";
 	    }
 	    return "redirect:/login";
+	}
+	
+	@GetMapping("/logout")
+	public String logout(HttpSession session) {
+	    session.invalidate();
+	    return "redirect:/chat";
 	}
 	
 	@PostMapping("/sign")

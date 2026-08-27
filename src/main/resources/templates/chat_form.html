@@ -129,7 +129,10 @@
     </style>
 </head>
 <body>
-
+<div th:if="${session.username != null}">
+    <span th:text="${session.username} + '님 안녕하세요!'"></span>
+   <a th:href="@{/logout}">로그아웃</a>
+</div>
 <div class="top-nav">
     <a th:href="@{/login}" class="top-login-btn">로그인</a>
     <a th:href="@{/sign}" class="top-login-btn">회원가입</a>

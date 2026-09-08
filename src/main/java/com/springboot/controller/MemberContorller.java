@@ -37,6 +37,7 @@ public class MemberContorller {
 	    Optional<Member> member = memberRepository.findByUsername(username);
 
 	    if(member.isPresent() && member.get().getPassword().equals(password)) {
+	    	session.setAttribute("member", member.get());
         	session.setAttribute("username", member.get().getUsername());
         	session.setAttribute("mbti", member.get().getMbti());
             return "redirect:/chat";

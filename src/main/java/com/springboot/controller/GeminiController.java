@@ -1,9 +1,16 @@
 package com.springboot.controller;
 
+import com.springboot.entity.Member;
+import com.springboot.repository.MemberRepository;
+import com.springboot.service.ChatHistoryService;
 import com.springboot.service.GeminiService;
 import com.springboot.service.MusicGenerationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import java.io.Console;
+import java.util.Optional;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,6 +24,8 @@ public class GeminiController {
 
     private final GeminiService geminiService;
     private final MusicGenerationService musicService;
+    private final ChatHistoryService chatHistoryService;
+    private final MemberRepository memberRepository;
 
     @GetMapping("/chat")
     public String showChatForm() {
@@ -57,7 +66,8 @@ public class GeminiController {
 
         //Gemini 응답
         String response = geminiService.getGeminiResponse(promptRequest);
-
+        
+        System.out.println(promptRequest);
         log.info("Gemini 전체 응답: {}", response);
 
         //시 / 키워드 분리
@@ -107,6 +117,22 @@ public class GeminiController {
 
         if (trackId != null) {
             trackTitle = musicService.getTrackTitle(trackId);
+        }
+        
+        String username = (String) session.getAttribute("username");
+
+        if (username != null) {
+            Optional<Member> member = memberRepository.findByUsername(username);
+
+            if (member.isPresent()) {
+                chatHistoryService.save(
+                        member.get(),
+                        poem,
+                        generatedPoem,
+                        trackTitle,
+                        audioUrl
+                );
+            }
         }
 
         // View 전달

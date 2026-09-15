@@ -44,7 +44,7 @@ public class GeminiController {
     	            "사용자의 MBTI: " + mbti + "\n" +
     	            "사용자의 MBTI를 참고하여 시와 음악의 분위기를 결정하는 참고 자료로만 사용해.\n\n";
     	}
-    	
+
     	//로그인 안했을경우
     	promptRequest +=
     	        "명령:\n" +
@@ -56,14 +56,19 @@ public class GeminiController {
     	        "[키워드]\n" +
     	        "Sad, Calm\n\n" +
     	        "제약사항:\n" +
-    	        "1. 키워드는 영어만 사용\n" +
-    	        "2. 키워드는 반드시 마지막 줄에만 작성\n" +
-    	        "3. 설명이나 부가 문장은 절대 출력하지 마\n" +
-    	        "4. 검색 가능한 음악이 많도록 매우 일반적이고 흔한 장르 및 분위기 키워드를 사용해\n " +
-    	        "5. 지나치게 구체적인 키워드나 감정 표현은 사용하지 마.\n" +
-    	        "6. 음악 검색에 적합한 영어 키워드를 2~3개만 사용해.\n" +
-    	        "7. 장르(Genre), 분위기(Mood), 악기(Instrument) 중심으로 키워드를 작성해";
-
+    	        "1. 키워드는 반드시 아래 [전체 허용 목록] 중에서만 2~3개 골라 쉼표(,)로 구분해서 작성해:\n" +
+    	        "   [Trap, Tropical, EDM, House, Funky, Retro, Modern, Lofi, Cinematic, Acoustic, " +
+    	        "Ambient, Electronic, Corporate, Hip Hop, Jazz, Pop, Rock, Classical, Dance, " +
+    	        "Phonk, Calm, Cool, Sad, Uplifting, Exciting, Hype, Fun, Romantic, Chill, " +
+    	        "Relaxing, Upbeat, Happy, Inspiring, Emotional, Energetic, Powerful, Dramatic, " +
+    	        "Epic, Peaceful, Aesthetic, Mysterious, Vocal, Drone, Party, Halloween, Sports, " +
+    	        "Workout, Kids, Adventure, Wedding, Movie, Travel, Nature, Vlog, Summer, " +
+    	        "Night, Meditative, Cooking, Advertising, Timelapse, Gaming, Technology, Action, " +
+    	        "Morning, Medieval, Christmas, How To, Intro]\n" +
+    	        "2. 위 목록에 없는 단어(예: Melancholy 등)는 절대로 출력하지 마.\n" +
+    	        "3. 키워드는 반드시 마지막 [키워드] 태그 아래에만 작성해.\n" +
+    	        "4. 설명이나 부가 문장은 절대 출력하지 마.";
+    	
         //Gemini 응답
         String response = geminiService.getGeminiResponse(promptRequest);
         

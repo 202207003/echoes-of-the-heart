@@ -4,10 +4,19 @@ import com.springboot.entity.ChatHistory;
 import com.springboot.entity.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface ChatHistoryRepository extends JpaRepository<ChatHistory, Long> {
 
-    // 특정 회원의 기록 조회
-    List<ChatHistory> findByMember(Member member);
+    List<ChatHistory> findByMemberAndCreatedAtGreaterThanEqualAndCreatedAtLessThanOrderByCreatedAtDesc(
+            Member member,
+            LocalDateTime start,
+            LocalDateTime end
+    );
+
+    List<ChatHistory> findByMemberOrderByCreatedAtDesc(Member member);
+
+    Optional<ChatHistory> findByIdAndMember(Long id, Member member);
 }

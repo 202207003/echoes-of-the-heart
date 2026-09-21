@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>나의 기록</title>
+    <link rel="stylesheet" th:href="@{/css/history.css}">
+</head>
+<body>
+
+<div class="container">
+
+    <header class="header">
+        <h1>나의 기록</h1>
+        <p>생성한 시와 음악을 날짜별로 확인해보세요.</p>
+    </header>
+
+    <section class="calendar-section">
+
+        <div class="calendar-header">
+            <a th:href="@{/history(date=${selectedDate.minusMonths(1)})}">&lt;</a>
+
+            <h2 th:text="${selectedDate.year + '년 ' + selectedDate.monthValue + '월'}">
+                2026년 9월
+            </h2>
+
+            <a th:href="@{/history(date=${selectedDate.plusMonths(1)})}">&gt;</a>
+        </div>
+
+        <div class="weekdays">
+            <div>일</div>
+            <div>월</div>
+            <div>화</div>
+            <div>수</div>
+            <div>목</div>
+            <div>금</div>
+            <div>토</div>
+        </div>
+
+        <div class="calendar">
+
+            <div
+                class="calendar-day empty"
+                th:each="i : ${#numbers.sequence(1, selectedDate.withDayOfMonth(1).dayOfWeek.value % 7)}">
+            </div>
+
+            <a
+                class="calendar-day"
+                th:each="day : ${#numbers.sequence(1, selectedDate.lengthOfMonth())}"
+                th:href="@{/history(date=${selectedDate.withDayOfMonth(day)})}"
+                th:text="${day}">
+                1
+            </a>
+
+        </div>
+
+    </section>
+
+    <section class="history-section">
+
+        <h2
+            th:text="${selectedDate.monthValue + '월 ' + selectedDate.dayOfMonth + '일 기록'}">
+            9월 21일 기록
+        </h2>
+
+        <div class="history-list">
+
+            <div
+                class="empty-message"
+                th:if="${#lists.isEmpty(histories)}">
+                이 날짜에는 저장된 기록이 없습니다.
+            </div>
+
+            <a
+                class="history-card"
+                th:each="history : ${histories}"
+                th:href="@{/history/{id}(id=${history.id})}">
+
+                <div
+                    class="time"
+                    th:text="${#temporals.format(history.createdAt, 'HH:mm')}">
+                    21:13
+                </div>
+
+                <div
+                    class="question"
+                    th:text="${history.question}">
+                    오늘은 하루 종일 비가 내렸다.
+                </div>
+
+            </a>
+
+        </div>
+
+    </section>
+
+</div>
+
+</body>
+</html>

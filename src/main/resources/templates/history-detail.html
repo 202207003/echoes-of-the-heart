@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>기록 상세</title>
+    <link rel="stylesheet" th:href="@{/css/history.css}">
+</head>
+<body>
+
+<div class="container">
+
+    <a class="back-button" th:href="@{/history}">
+        ← 기록 목록으로
+    </a>
+
+    <section class="detail-card">
+
+        <p
+            class="detail-date"
+            th:text="${#temporals.format(history.createdAt, 'yyyy년 M월 d일 HH:mm')}">
+            2026년 9월 21일 21:13
+        </p>
+
+        <h2>질문</h2>
+        <p th:text="${history.question}">
+            오늘은 하루 종일 비가 내렸다.
+        </p>
+
+        <h2>시</h2>
+        <div
+            class="poem"
+            th:text="${history.poem}">
+            생성된 시 내용
+        </div>
+
+        <h2>음악</h2>
+        <p th:text="${history.musicTitle}">
+            Rainy Evening
+        </p>
+
+        <a
+            class="music-link"
+            th:href="${history.musicUrl}"
+            target="_blank">
+            음악 듣기
+        </a>
+
+    </section>
+
+</div>
+
+</body>
+</html>

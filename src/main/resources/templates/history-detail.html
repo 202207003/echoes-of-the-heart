@@ -39,15 +39,12 @@
             Rainy Evening
         </p>
 
-        <a
-            class="music-link"
-            th:href="${history.musicUrl}"
-            target="_blank">
-            음악 듣기
-        </a>
-
+	    <audio controls>
+	        <source th:src="${history.musicUrl}" type="audio/mpeg">
+	        브라우저에서 음악을 재생할 수 없습니다.
+	    </audio>
+	</div>
     </section>
-
 </div>
 
 </body>

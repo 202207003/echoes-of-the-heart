@@ -176,6 +176,19 @@ body {
     text-decoration: none;
 }
 
+.music-player {
+    margin-top: 15px;
+}
+
+.music-player p {
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.music-player audio {
+    width: 100%;
+}
+
 @media (max-width: 600px) {
     .container {
         width: 94%;
@@ -190,4 +203,17 @@ body {
     .calendar-day {
         min-height: 55px;
     }
+    
 }
+    .calendar-day.has-history {
+    background-color: #333;
+    color: white;
+	}
+	
+	.calendar-day.no-history {
+	    color: #aaa;
+	}
+	
+	.calendar-day.has-history:hover {
+	    background-color: #444;
+	}

@@ -41,6 +41,10 @@ public class ChatHistoryService {
                 );
     }
 
+    public List<ChatHistory> findByMember(Member member) {
+        return chatHistoryRepository.findByMember(member);
+    }
+
     public Optional<ChatHistory> findById(Long id, Member member) {
         return chatHistoryRepository.findByIdAndMember(id, member);
     }

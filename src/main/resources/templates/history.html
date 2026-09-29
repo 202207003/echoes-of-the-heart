@@ -45,13 +45,13 @@
             </div>
 
             <a
-                class="calendar-day"
-                th:each="day : ${#numbers.sequence(1, selectedDate.lengthOfMonth())}"
-                th:href="@{/history(date=${selectedDate.withDayOfMonth(day)})}"
-                th:text="${day}">
-                1
-            </a>
-
+			    class="calendar-day"
+			    th:each="day : ${#numbers.sequence(1, selectedDate.lengthOfMonth())}"
+			    th:classappend="${historyDays.contains(day)} ? ' has-history' : ' no-history'"
+			    th:href="@{/history(date=${selectedDate.withDayOfMonth(day)})}"
+			    th:text="${day}">
+			    1
+			</a>
         </div>
 
     </section>

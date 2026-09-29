@@ -19,4 +19,6 @@ public interface ChatHistoryRepository extends JpaRepository<ChatHistory, Long> 
     List<ChatHistory> findByMemberOrderByCreatedAtDesc(Member member);
 
     Optional<ChatHistory> findByIdAndMember(Long id, Member member);
+    
+    List<ChatHistory> findByMember(Member member);
 }

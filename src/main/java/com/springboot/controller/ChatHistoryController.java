@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Controller
 public class ChatHistoryController {
@@ -25,7 +27,7 @@ public class ChatHistoryController {
 
     @GetMapping("/history")
     public String history(
-    		@RequestParam(name = "date", required = false) String date,
+            @RequestParam(name = "date", required = false) String date,
             HttpSession session,
             Model model
     ) {
@@ -42,15 +44,25 @@ public class ChatHistoryController {
         List<ChatHistory> histories =
                 chatHistoryService.findByDate(member, selectedDate);
 
+        List<ChatHistory> monthHistories =
+                chatHistoryService.findByMember(member);
+
+        Set<Integer> historyDays = monthHistories.stream()
+                .filter(history -> history.getCreatedAt().getYear() == selectedDate.getYear())
+                .filter(history -> history.getCreatedAt().getMonthValue() == selectedDate.getMonthValue())
+                .map(history -> history.getCreatedAt().getDayOfMonth())
+                .collect(Collectors.toSet());
+
         model.addAttribute("selectedDate", selectedDate);
         model.addAttribute("histories", histories);
+        model.addAttribute("historyDays", historyDays);
 
         return "history";
     }
 
     @GetMapping("/history/{id}")
     public String historyDetail(
-    		@PathVariable("id") Long id,
+            @PathVariable("id") Long id,
             HttpSession session,
             Model model
     ) {

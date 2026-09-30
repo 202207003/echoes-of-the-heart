@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Poem Music AI</title>
+    <title>Music AI</title>
 
     <style>
         * {
@@ -15,20 +15,52 @@
         body {
             min-height: 100vh;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
-            padding: 40px 20px;
-            font-family: 'Pretendard', sans-serif;
             background: linear-gradient(135deg, #f7f9fc, #e9eef6);
-            position: relative;
+            font-family: 'Pretendard', sans-serif;
+            padding-bottom: 40px;
         }
 
-        .top-nav {
-            position: absolute;
-            top: 24px;
-            right: 24px;
+        /* 1. 상단 헤더 띠 전체 영역 */
+        .top-header {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #e3e6ee;
+            padding: 16px 0;
+        }
+
+        /* 2. 헤더 내부 콘텐츠 레이아웃 (양끝 정렬) */
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
             display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* 3. 좌측 서비스 로고 */
+        .logo {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #6c63ff;
+            text-decoration: none;
+        }
+
+        /* 4. 우측 버튼 네비게이션 영역 */
+        .top-nav {
+            display: flex;
+            align-items: center;
             gap: 10px;
+        }
+
+        .user-welcome {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #4e5968;
+            margin-right: 6px;
         }
 
         .top-login-btn {
@@ -51,7 +83,9 @@
             transform: translateY(-1px);
         }
 
+        /* 5. 메인 카드 영역 */
         .card {
+            margin: auto 0;
             width: 100%;
             max-width: 760px;
             background: white;
@@ -122,25 +156,40 @@
         }
 
         @media (max-width: 480px) {
-            body { padding-top: 80px; }
             .card { padding: 30px 20px; }
             h1 { font-size: 1.5rem; }
         }
     </style>
 </head>
 <body>
-<div th:if="${session.username != null}">
-   <span th:text="${session.username} + '님 안녕하세요!'"></span>
-   <a th:href="@{/logout}">로그아웃</a>
-   <a th:href="@{/history}">채팅기록</a>
-</div>
-<div class="top-nav">
-    <a th:href="@{/login}" class="top-login-btn">로그인</a>
-    <a th:href="@{/sign}" class="top-login-btn">회원가입</a>
-</div>
 
+<!-- 상단 헤더 바 -->
+<header class="top-header">
+    <div class="header-container">
+        <!-- 좌측 로고 (클릭 시 /chat 으로 이동) -->
+        <a th:href="@{/chat}" class="logo">Music AI</a>
+
+        <!-- 우측 네비게이션 버튼 -->
+        <div class="top-nav">
+            <!-- 1. 로그인 상태일 때 -->
+            <th:block th:if="${session.username != null}">
+                <span class="user-welcome" th:text="${session.username} + '님 안녕하세요!'"></span>
+                <a th:href="@{/history}" class="top-login-btn">채팅기록</a>
+                <a th:href="@{/logout}" class="top-login-btn">로그아웃</a>
+            </th:block>
+
+            <!-- 2. 로그인 안 했을 때 -->
+            <th:block th:unless="${session.username != null}">
+                <a th:href="@{/login}" class="top-login-btn">로그인</a>
+                <a th:href="@{/sign}" class="top-login-btn">회원가입</a>
+            </th:block>
+        </div>
+    </div>
+</header>
+
+<!-- 중앙 메인 카드 -->
 <div class="card">
-    <h1>🎵 시를 입력하면 음악을 추천해드려요</h1>
+    <h1>🎵 감정을 입력하면 시와음악을 추천해드려요</h1>
     <p class="subtitle">
         오늘의 감정, 짧은 시, 떠오르는 문장을 입력해보세요.<br>
         AI가 분위기를 분석하고 어울리는 음악을 추천합니다.

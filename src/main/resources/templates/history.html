@@ -3,10 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>나의 기록</title>
+    <title>나의 기록 - Music AI</title>
     <link rel="stylesheet" th:href="@{/css/history.css}">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: linear-gradient(135deg, #f7f9fc, #e9eef6);
+            font-family: 'Pretendard', sans-serif;
+            color: #222;
+            padding-bottom: 60px;
+        }
+
+        /* 1. 상단 헤더 띠 전체 영역 */
+        .top-header {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #e3e6ee;
+            padding: 16px 0;
+            margin-bottom: 30px;
+        }
+
+        /* 2. 헤더 내부 콘텐츠 레이아웃 (양끝 정렬) */
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* 3. 좌측 서비스 로고 */
+        .logo {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #6c63ff;
+            text-decoration: none;
+        }
+
+        /* 4. 우측 버튼 네비게이션 영역 */
+        .top-nav {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-welcome {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #4e5968;
+            margin-right: 6px;
+        }
+
+        .top-login-btn {
+            text-decoration: none;
+            color: #4e5968;
+            font-size: 0.9rem;
+            font-weight: 600;
+            padding: 10px 18px;
+            background: white;
+            border: 1px solid #e3e6ee;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
+            transition: all 0.2s ease;
+        }
+
+        .top-login-btn:hover {
+            background: #fafbff;
+            border-color: #6c63ff;
+            color: #6c63ff;
+            transform: translateY(-1px);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 760px;
+            padding: 0 20px;
+        }
+
+        @media (max-width: 480px) {
+            .header-container { padding: 0 16px; }
+        }
+    </style>
 </head>
 <body>
+
+<!-- 상단 헤더 바 -->
+<header class="top-header">
+    <div class="header-container">
+        <!-- 좌측 로고 -->
+        <a th:href="@{/chat}" class="logo">Music AI</a>
+
+        <!-- 우측 네비게이션 버튼 -->
+        <div class="top-nav">
+            <!-- 1. 로그인 상태일 때 -->
+            <th:block th:if="${session.username != null}">
+                <span class="user-welcome" th:text="${session.username} + '님 안녕하세요!'"></span>
+                <a th:href="@{/history}" class="top-login-btn">채팅기록</a>
+                <a th:href="@{/logout}" class="top-login-btn">로그아웃</a>
+            </th:block>
+
+            <!-- 2. 로그인 안 했을 때 -->
+            <th:block th:unless="${session.username != null}">
+                <a th:href="@{/login}" class="top-login-btn">로그인</a>
+                <a th:href="@{/sign}" class="top-login-btn">회원가입</a>
+            </th:block>
+        </div>
+    </div>
+</header>
 
 <div class="container">
 
@@ -45,13 +160,13 @@
             </div>
 
             <a
-			    class="calendar-day"
-			    th:each="day : ${#numbers.sequence(1, selectedDate.lengthOfMonth())}"
-			    th:classappend="${historyDays.contains(day)} ? ' has-history' : ' no-history'"
-			    th:href="@{/history(date=${selectedDate.withDayOfMonth(day)})}"
-			    th:text="${day}">
-			    1
-			</a>
+                class="calendar-day"
+                th:each="day : ${#numbers.sequence(1, selectedDate.lengthOfMonth())}"
+                th:classappend="${historyDays.contains(day)} ? ' has-history' : ' no-history'"
+                th:href="@{/history(date=${selectedDate.withDayOfMonth(day)})}"
+                th:text="${day}">
+                1
+            </a>
         </div>
 
     </section>

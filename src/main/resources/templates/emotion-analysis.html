@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>감정 분석</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f7f9fc, #e9eef6);
+            font-family: 'Pretendard', sans-serif;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            color: #222;
+            margin-bottom: 12px;
+        }
+
+        .header p {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .input-box {
+            background: white;
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+        }
+
+        .input-box h2 {
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            color: #333;
+        }
+
+        .poem-text {
+            background: #f7f8fc;
+            border-radius: 12px;
+            padding: 15px;
+            color: #555;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+
+        .section {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
+            margin-bottom: 25px;
+        }
+
+        .section h2 {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #333;
+        }
+
+        .image-list {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .image-option {
+            position: relative;
+        }
+
+        .image-option input {
+            display: none;
+        }
+
+        .image-option label {
+            display: block;
+            cursor: pointer;
+            border: 3px solid transparent;
+            border-radius: 14px;
+            padding: 5px;
+            transition: 0.2s ease;
+        }
+
+        .image-option img {
+            width: 180px;
+            height: 170px;
+            object-fit: contain;
+            display: block;
+            border-radius: 10px;
+            background: #fafafa;
+        }
+
+        .image-option label:hover {
+            transform: translateY(-4px);
+        }
+
+        .image-option input:checked + label {
+            border-color: #6c63ff;
+            box-shadow: 0 0 0 4px rgba(108, 99, 255, 0.15);
+        }
+
+        .choice-name {
+            text-align: center;
+            margin-top: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .submit-button {
+            width: 100%;
+            padding: 17px;
+            border: none;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #6c63ff, #5a52e0);
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 10px 20px rgba(108, 99, 255, 0.18);
+            transition: 0.3s ease;
+        }
+
+        .submit-button:hover {
+            transform: translateY(-3px);
+        }
+
+        @media (max-width: 600px) {
+            .section {
+                padding: 20px 15px;
+            }
+
+            .image-option img {
+                width: 130px;
+                height: 130px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+	<header class="header"> 
+	    <h1>감정 분석</h1> 
+	    <p> 
+	        입력한 문장과 함께 마음에 드는 집, 나무, 사람 이미지를 선택해주세요.<br> 
+	        선택한 이미지를 바탕으로 AI가 감정과 분위기를 분석합니다. 
+	    </p> 
+	</header>
+
+    <form th:action="@{/create-poem-music}" method="get">
+
+        <input type="hidden" name="poem" th:value="${poem}">
+
+        <section class="input-box">
+            <h2>입력한 문장</h2>
+
+            <div class="poem-text" th:text="${poem}">
+                오늘은 괜히 마음이 울적했다.
+            </div>
+        </section>
+
+        <section class="section">
+
+            <h2>🏠 집을 선택해주세요</h2>
+
+            <div class="image-list">
+
+                <div class="image-option">
+                    <input type="radio" id="house1" name="house" value="H1" required>
+                    <label for="house1">
+                        <img th:src="@{/images/house1.png}">
+                        <div class="choice-name">H1</div>
+                    </label>
+                </div>
+
+                <div class="image-option">
+                    <input type="radio" id="house2" name="house" value="H2">
+                    <label for="house2">
+                        <img th:src="@{/images/house2.png}">
+                        <div class="choice-name">H2</div>
+                    </label>
+                </div>
+
+                <div class="image-option">
+                    <input type="radio" id="house3" name="house" value="H3">
+                    <label for="house3">
+                        <img th:src="@{/images/house3.png}">
+                        <div class="choice-name">H3</div>
+                    </label>
+                </div>
+
+            </div>
+        </section>
+
+        <section class="section">
+
+            <h2>🌳 나무를 선택해주세요</h2>
+
+            <div class="image-list">
+
+                <div class="image-option">
+                    <input type="radio" id="tree1" name="tree" value="T1" required>
+                    <label for="tree1">
+                        <img th:src="@{/images/tree1.png}">
+                        <div class="choice-name">T1</div>
+                    </label>
+                </div>
+
+                <div class="image-option">
+                    <input type="radio" id="tree2" name="tree" value="T2">
+                    <label for="tree2">
+                        <img th:src="@{/images/tree2.png}">
+                        <div class="choice-name">T2</div>
+                    </label>
+                </div>
+
+                <div class="image-option">
+                    <input type="radio" id="tree3" name="tree" value="T3">
+                    <label for="tree3">
+                        <img th:src="@{/images/tree3.png}">
+                        <div class="choice-name">T3</div>
+                    </label>
+                </div>
+
+            </div>
+        </section>
+
+        <section class="section">
+
+            <h2>👤 사람을 선택해주세요</h2>
+
+            <div class="image-list">
+
+                <div class="image-option">
+                    <input type="radio" id="person1" name="person" value="P1" required>
+                    <label for="person1">
+                        <img th:src="@{/images/person1.png}">
+                        <div class="choice-name">P1</div>
+                    </label>
+                </div>
+
+                <div class="image-option">
+                    <input type="radio" id="person2" name="person" value="P2">
+                    <label for="person2">
+                        <img th:src="@{/images/person2.png}">
+                        <div class="choice-name">P2</div>
+                    </label>
+                </div>
+
+                <div class="image-option">
+                    <input type="radio" id="person3" name="person" value="P3">
+                    <label for="person3">
+                        <img th:src="@{/images/person3.png}">
+                        <div class="choice-name">P3</div>
+                    </label>
+                </div>
+
+            </div>
+        </section>
+
+        <button type="submit" class="submit-button">
+            분석하기
+        </button>
+
+    </form>
+
+</div>
+
+</body>
+</html>

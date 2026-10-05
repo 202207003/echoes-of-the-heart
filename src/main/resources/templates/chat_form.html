@@ -189,13 +189,13 @@
 
 <!-- 중앙 메인 카드 -->
 <div class="card">
-    <h1>🎵 감정을 입력하면 시와음악을 추천해드려요</h1>
+    <h1>🎵 감정을 입력하면 시와 음악을 추천해드려요</h1>
     <p class="subtitle">
         오늘의 감정, 짧은 시, 떠오르는 문장을 입력해보세요.<br>
-        AI가 분위기를 분석하고 어울리는 음악을 추천합니다.
+        이후 집, 나무, 사람 이미지를 선택하면 AI가 분위기를 분석합니다.
     </p>
 
-    <form th:action="@{/create-poem-music}" method="get">
+    <form th:action="@{/emotion-analysis}" method="get">
         <textarea name="poem" placeholder="예) 오늘은 괜히 마음이 울적했다..." required></textarea>
         <button type="submit">감성 분석 시작하기</button>
     </form>

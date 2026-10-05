@@ -8,7 +8,6 @@ import com.springboot.service.MusicGenerationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.Console;
 import java.util.Optional;
 
 import org.springframework.stereotype.Controller;
@@ -33,8 +32,37 @@ public class GeminiController {
     }
 
     @GetMapping("/create-poem-music")
-    public String createPoemMusic(@RequestParam(value = "poem") String poem, Model model, HttpSession session) {
+
+    public String createPoemMusic(@RequestParam(value = "poem") String poem, @RequestParam(value = "house") String house, @RequestParam(value = "tree") String tree, @RequestParam(value = "person") String person, Model model, HttpSession session) {
     	String mbti = (String) session.getAttribute("mbti");
+    	
+    	String houseText = "";
+    	String treeText = "";
+    	String personText = "";
+
+    	if (house.equals("H1")) {
+    		houseText = "외부 자극이나 타인과의 관계에서 다소 경계심이 있으며, 나만의 온전한 공간과 보호를 원함";
+    	} else if (house.equals("H2")) {
+    		houseText = "타인과의 소통과 교류에 열려 있으며, 정서적으로 밝고 개방적인 상태";
+    	} else if (house.equals("H3")) {
+    		houseText = "내면의 불안을 누르고 안정감과 단단한 지지 기반을 필요로 하는 상태";
+    	}
+
+    	if (tree.equals("T1")) {
+    		treeText = "자아 존중감이 높고 내면의 중심이 잘 잡혀 있어 현실에 안정적으로 적응함";
+    	} else if (tree.equals("T2")) {
+    		treeText = "외부 환경에 민감하고 섬세하며, 현재 감정적 유연함이나 조심스러운 위로가 필요한 상태";
+    	} else if (tree.equals("T3")) {
+    		treeText = "무의식적 자아 에너지가 활발하며, 무언가를 표현하고 성장하려는 의욕이 높음";
+    	}
+
+    	if (person.equals("P1")) {
+    		personText = "현재 피로감이 있거나 내면의 자아 성찰을 위해 조용한 휴식과 위로를 원하는 상태";
+    	} else if (person.equals("P2")) {
+    		personText = "억눌린 정서에서 벗어나 자유롭고 긍정적인 변화를 갈망하는 상태";
+    	} else if (person.equals("P3")) {
+    		personText = "신중하고 정돈된 상태로, 자신을 보호하면서 객관적인 시각을 유지함";
+    	}
     	
     	//로그인해서 mbti가 있을경우
     	String promptRequest = poem + "\n\n";
@@ -44,11 +72,17 @@ public class GeminiController {
     	            "사용자의 MBTI: " + mbti + "\n" +
     	            "사용자의 MBTI를 참고하여 시와 음악의 분위기를 결정하는 참고 자료로만 사용해.\n\n";
     	}
+    	//HTP 검사 결과
+    	promptRequest +=
+    	        "HTP 선택 결과:\n" +
+    	        "집: " + houseText + "\n" +
+    	        "나무: " + treeText + "\n" +
+    	        "사람: " + personText + "\n\n";
 
     	//로그인 안했을경우
     	promptRequest +=
     	        "명령:\n" +
-    	        "1. 위 문장의 감정을 바탕으로 짧고 감성적인 시를 작성해.\n" +
+        		"1. 위 문장의 감정을 바탕으로 짧고 감성적인 시를 작성해. 4~6줄 이내로 작성해.\n" +
     	        "2. 마지막에는 음악 검색용 영어 키워드를 쉼표(,)로 구분해서 출력해.\n\n" +
     	        "출력 형식:\n" +
     	        "[시]\n" +

@@ -1,5 +1,29 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
+	
+
+<!-- 상단 헤더 바 -->
+<header class="top-header">
+    <div class="header-container">
+        <!-- 좌측 로고 (클릭 시 /chat 으로 이동) -->
+        <a th:href="@{/chat}" class="logo">Music AI</a>
+
+        <!-- 우측 네비게이션 버튼 -->
+        <div class="top-nav">
+            <!-- 1. 로그인 상태일 때 -->
+            <th:block th:if="${session.username != null}">
+                <span class="user-welcome" th:text="${session.username} + '님 안녕하세요!'"></span>
+                <a th:href="@{/history}" class="top-login-btn">채팅기록</a>
+                <a th:href="@{/logout}" class="top-login-btn">로그아웃</a>
+            </th:block>
+
+            <!-- 2. 로그인 안 했을 때 -->
+            <th:block th:unless="${session.username != null}">
+                <a th:href="@{/login}" class="top-login-btn">로그인</a>
+                <a th:href="@{/sign}" class="top-login-btn">회원가입</a>
+            </th:block>
+        </div>
+    </div>
 
 <head>
     <meta charset="UTF-8">

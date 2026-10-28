@@ -80,28 +80,33 @@ public class GeminiController {
     	        "사람: " + personText + "\n\n";
 
     	//로그인 안했을경우
+    	int originalLineCount = poem.split("\r?\n").length;
+    	int targetLineCount = originalLineCount * 2;
+
     	promptRequest +=
-    	        "명령:\n" +
-        		"1. 위 문장의 감정을 바탕으로 짧고 감성적인 시를 작성해. 4~6줄 이내로 작성해.\n" +
-    	        "2. 마지막에는 음악 검색용 영어 키워드를 쉼표(,)로 구분해서 출력해.\n\n" +
-    	        "출력 형식:\n" +
-    	        "[시]\n" +
-    	        "(여기에 시 작성)\n\n" +
-    	        "[키워드]\n" +
-    	        "Sad, Calm\n\n" +
-    	        "제약사항:\n" +
-    	        "1. 키워드는 반드시 아래 [전체 허용 목록] 중에서만 2~3개 골라 쉼표(,)로 구분해서 작성해:\n" +
-    	        "   [Trap, Tropical, EDM, House, Funky, Retro, Modern, Lofi, Cinematic, Acoustic, " +
-    	        "Ambient, Electronic, Corporate, Hip Hop, Jazz, Pop, Rock, Classical, Dance, " +
-    	        "Phonk, Calm, Cool, Sad, Uplifting, Exciting, Hype, Fun, Romantic, Chill, " +
-    	        "Relaxing, Upbeat, Happy, Inspiring, Emotional, Energetic, Powerful, Dramatic, " +
-    	        "Epic, Peaceful, Aesthetic, Mysterious, Vocal, Drone, Party, Halloween, Sports, " +
-    	        "Workout, Kids, Adventure, Wedding, Movie, Travel, Nature, Vlog, Summer, " +
-    	        "Night, Meditative, Cooking, Advertising, Timelapse, Gaming, Technology, Action, " +
-    	        "Morning, Medieval, Christmas, How To, Intro]\n" +
-    	        "2. 위 목록에 없는 단어(예: Melancholy 등)는 절대로 출력하지 마.\n" +
-    	        "3. 키워드는 반드시 마지막 [키워드] 태그 아래에만 작성해.\n" +
-    	        "4. 설명이나 부가 문장은 절대 출력하지 마.";
+    			"명령:\n" +
+    			"1. 아래 제공된 원문('" + poem + "')의 감성을 살리되, **정확히 " + targetLineCount + "줄(행)**로만 감성적인 시를 작성해.\n" +
+    			"2. 단 한 줄도 더 길어지거나 짧아지지 않도록, **반드시 총 " + targetLineCount + "줄**이라는 행 수 제약을 엄수해.\n" +
+    			"3. 마지막에는 음악 검색용 영어 키워드를 쉼표(,)로 구분해서 출력해.\n\n" +
+    			"출력 형식:\n" +
+    			"[시]\n" +
+    			"(여기에 정확히 " + targetLineCount + "줄의 시 작성)\n\n" +
+    			"[키워드]\n" +
+    			"Sad, Calm\n\n" +
+    			"제약사항:\n" +
+    			"1. 시의 전체 줄 수(행 수)는 **반드시 " + targetLineCount + "줄**이어야 한다. (초과 금지)\n" +
+    			"2. 키워드는 반드시 아래 [전체 허용 목록] 중에서만 2~3개 골라 쉼표(,)로 구분해서 작성해:\n" +
+    			"    [Trap, Tropical, EDM, House, Funky, Retro, Modern, Lofi, Cinematic, Acoustic, " +
+    			"Ambient, Electronic, Corporate, Hip Hop, Jazz, Pop, Rock, Classical, Dance, " +
+    			"Phonk, Calm, Cool, Sad, Uplifting, Exciting, Hype, Fun, Romantic, Chill, " +
+    			"Relaxing, Upbeat, Happy, Inspiring, Emotional, Energetic, Powerful, Dramatic, " +
+    			"Epic, Peaceful, Aesthetic, Mysterious, Vocal, Drone, Party, Halloween, Sports, " +
+    			"Workout, Kids, Adventure, Wedding, Movie, Travel, Nature, Vlog, Summer, " +
+    			"Night, Meditative, Cooking, Advertising, Timelapse, Gaming, Technology, Action, " +
+    			"Morning, Medieval, Christmas, How To, Intro]\n" +
+    			"3. 위 목록에 없는 단어는 절대로 출력하지 마.\n" +
+    			"4. 키워드는 반드시 마지막 [키워드] 태그 아래에만 작성해.\n" +
+    			"5. 설명이나 부가 문장은 절대 출력하지 마.";
     	
         //Gemini 응답
         String response = geminiService.getGeminiResponse(promptRequest);

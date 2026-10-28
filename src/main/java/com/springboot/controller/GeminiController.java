@@ -4,11 +4,15 @@ import com.springboot.entity.Member;
 import com.springboot.repository.MemberRepository;
 import com.springboot.service.ChatHistoryService;
 import com.springboot.service.GeminiService;
+import com.springboot.service.EmotionImageService;
 import com.springboot.service.MusicGenerationService;
+import com.springboot.service.PoemInputService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Optional;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,9 +26,11 @@ import jakarta.servlet.http.HttpSession;
 public class GeminiController {
 
     private final GeminiService geminiService;
+    private final EmotionImageService emotionImageService;
     private final MusicGenerationService musicService;
     private final ChatHistoryService chatHistoryService;
     private final MemberRepository memberRepository;
+    private final PoemInputService poemInputService;
 
     @GetMapping("/chat")
     public String showChatForm() {
@@ -33,37 +39,14 @@ public class GeminiController {
 
     @GetMapping("/create-poem-music")
 
-    public String createPoemMusic(@RequestParam(value = "poem") String poem, @RequestParam(value = "house") String house, @RequestParam(value = "tree") String tree, @RequestParam(value = "person") String person, Model model, HttpSession session) {
+    public String createPoemMusic(@RequestParam(value = "poem") String poem, @RequestParam(value = "house") String house, @RequestParam(value = "tree") String tree, @RequestParam(value = "person") String person, @RequestParam(value = "mood", defaultValue = "calm") String mood, Model model, HttpSession session) {
     	String mbti = (String) session.getAttribute("mbti");
+        List<String> meaningUnits = poemInputService.splitByMeaning(poem);
+        int poemLineCount = Math.max(1, meaningUnits.size()) * 2;
     	
-    	String houseText = "";
-    	String treeText = "";
-    	String personText = "";
-
-    	if (house.equals("H1")) {
-    		houseText = "외부 자극이나 타인과의 관계에서 다소 경계심이 있으며, 나만의 온전한 공간과 보호를 원함";
-    	} else if (house.equals("H2")) {
-    		houseText = "타인과의 소통과 교류에 열려 있으며, 정서적으로 밝고 개방적인 상태";
-    	} else if (house.equals("H3")) {
-    		houseText = "내면의 불안을 누르고 안정감과 단단한 지지 기반을 필요로 하는 상태";
-    	}
-
-    	if (tree.equals("T1")) {
-    		treeText = "자아 존중감이 높고 내면의 중심이 잘 잡혀 있어 현실에 안정적으로 적응함";
-    	} else if (tree.equals("T2")) {
-    		treeText = "외부 환경에 민감하고 섬세하며, 현재 감정적 유연함이나 조심스러운 위로가 필요한 상태";
-    	} else if (tree.equals("T3")) {
-    		treeText = "무의식적 자아 에너지가 활발하며, 무언가를 표현하고 성장하려는 의욕이 높음";
-    	}
-
-    	if (person.equals("P1")) {
-    		personText = "현재 피로감이 있거나 내면의 자아 성찰을 위해 조용한 휴식과 위로를 원하는 상태";
-    	} else if (person.equals("P2")) {
-    		personText = "억눌린 정서에서 벗어나 자유롭고 긍정적인 변화를 갈망하는 상태";
-    	} else if (person.equals("P3")) {
-    		personText = "신중하고 정돈된 상태로, 자신을 보호하면서 객관적인 시각을 유지함";
-    	}
-    	
+        String houseText = emotionImageService.describe(mood, house, "house");
+        String treeText = emotionImageService.describe(mood, tree, "tree");
+        String personText = emotionImageService.describe(mood, person, "person");
     	//로그인해서 mbti가 있을경우
     	String promptRequest = poem + "\n\n";
 
@@ -72,41 +55,47 @@ public class GeminiController {
     	            "사용자의 MBTI: " + mbti + "\n" +
     	            "사용자의 MBTI를 참고하여 시와 음악의 분위기를 결정하는 참고 자료로만 사용해.\n\n";
     	}
-    	//HTP 검사 결과
+	// 이미지 선택은 분위기 참고로만 사용
     	promptRequest +=
-    	        "HTP 선택 결과:\n" +
-    	        "집: " + houseText + "\n" +
-    	        "나무: " + treeText + "\n" +
-    	        "사람: " + personText + "\n\n";
+	        "분위기 참고용 이미지 선택:\n" +
+                "집: " + houseText + "\n" +
+                "나무: " + treeText + "\n" +
+	        "사람: " + personText + "\n\n" +
+                "반영 원칙:\n" +
+                "사용자가 입력한 문장에 드러난 감정과 맥락을 가장 우선하여 시와 음악 키워드를 정해.\n" +
+                "이미지와 MBTI는 문장의 감정과 어울리는 경우에만 보조적인 분위기 참고로 사용해.\n" +
+                "이미지 분위기와 문장의 감정이 다르면 문장의 감정을 따라.\n" +
+                "이미지 선택으로 사용자의 성격, 자존감, 불안 또는 심리 상태를 단정하거나 진단하지 마.\n" +
+                "선택 없는 항목은 무시하고, 모두 선택 없으면 입력한 문장만으로 작성해.\n\n";
 
     	//로그인 안했을경우
-    	int originalLineCount = poem.split("\r?\n").length;
-    	int targetLineCount = originalLineCount * 2;
-
     	promptRequest +=
-    			"명령:\n" +
-    			"1. 아래 제공된 원문('" + poem + "')의 감성을 살리되, **정확히 " + targetLineCount + "줄(행)**로만 감성적인 시를 작성해.\n" +
-    			"2. 단 한 줄도 더 길어지거나 짧아지지 않도록, **반드시 총 " + targetLineCount + "줄**이라는 행 수 제약을 엄수해.\n" +
-    			"3. 마지막에는 음악 검색용 영어 키워드를 쉼표(,)로 구분해서 출력해.\n\n" +
-    			"출력 형식:\n" +
-    			"[시]\n" +
-    			"(여기에 정확히 " + targetLineCount + "줄의 시 작성)\n\n" +
-    			"[키워드]\n" +
-    			"Sad, Calm\n\n" +
-    			"제약사항:\n" +
-    			"1. 시의 전체 줄 수(행 수)는 **반드시 " + targetLineCount + "줄**이어야 한다. (초과 금지)\n" +
-    			"2. 키워드는 반드시 아래 [전체 허용 목록] 중에서만 2~3개 골라 쉼표(,)로 구분해서 작성해:\n" +
-    			"    [Trap, Tropical, EDM, House, Funky, Retro, Modern, Lofi, Cinematic, Acoustic, " +
-    			"Ambient, Electronic, Corporate, Hip Hop, Jazz, Pop, Rock, Classical, Dance, " +
-    			"Phonk, Calm, Cool, Sad, Uplifting, Exciting, Hype, Fun, Romantic, Chill, " +
-    			"Relaxing, Upbeat, Happy, Inspiring, Emotional, Energetic, Powerful, Dramatic, " +
-    			"Epic, Peaceful, Aesthetic, Mysterious, Vocal, Drone, Party, Halloween, Sports, " +
-    			"Workout, Kids, Adventure, Wedding, Movie, Travel, Nature, Vlog, Summer, " +
-    			"Night, Meditative, Cooking, Advertising, Timelapse, Gaming, Technology, Action, " +
-    			"Morning, Medieval, Christmas, How To, Intro]\n" +
-    			"3. 위 목록에 없는 단어는 절대로 출력하지 마.\n" +
-    			"4. 키워드는 반드시 마지막 [키워드] 태그 아래에만 작성해.\n" +
-    			"5. 설명이나 부가 문장은 절대 출력하지 마.";
+                "명령:\n" +
+                "1. 위 문장의 감정을 바탕으로 감성적인 시를 정확히 " + poemLineCount + "줄로 작성해.\n" +
+                "사용자 원문을 의미 기준으로 나눈 내용은 다음 " + meaningUnits.size() + "개야:\n" +
+                String.join("\n", meaningUnits) + "\n" +
+                "위 각 의미 단위의 감정과 맥락을 순서대로 시 2줄씩으로 표현해.\n" +
+                "원문의 줄바꿈이나 단어 수로 시의 길이를 바꾸지 마. 이미지 설명과 MBTI는 의미 단위 수에 포함하지 마.\n" +
+                "시의 각 행은 줄바꿈으로 구분하고, 제목, 행 번호, 빈 줄 없이 작성해. [시]와 [키워드] 태그 및 음악 키워드는 시의 줄 수에서 제외해.\n" +
+                "2. 마지막에는 음악 검색용 영어 키워드를 쉼표(,)로 구분해서 출력해.\n\n" +
+                "출력 형식:\n" +
+                "[시]\n" +
+                "(여기에 시 작성)\n\n" +
+                "[키워드]\n" +
+                "Sad, Calm\n\n" +
+                "제약사항:\n" +
+                "1. 키워드는 반드시 아래 [전체 허용 목록] 중에서만 2~3개 골라 쉼표(,)로 구분해서 작성해:\n" +
+                "   [Trap, Tropical, EDM, House, Funky, Retro, Modern, Lofi, Cinematic, Acoustic, " +
+                "Ambient, Electronic, Corporate, Hip Hop, Jazz, Pop, Rock, Classical, Dance, " +
+                "Phonk, Calm, Cool, Sad, Uplifting, Exciting, Hype, Fun, Romantic, Chill, " +
+                "Relaxing, Upbeat, Happy, Inspiring, Emotional, Energetic, Powerful, Dramatic, " +
+                "Epic, Peaceful, Aesthetic, Mysterious, Vocal, Drone, Party, Halloween, Sports, " +
+                "Workout, Kids, Adventure, Wedding, Movie, Travel, Nature, Vlog, Summer, " +
+                "Night, Meditative, Cooking, Advertising, Timelapse, Gaming, Technology, Action, " +
+                "Morning, Medieval, Christmas, How To, Intro]\n" +
+                "2. 위 목록에 없는 단어(예: Melancholy 등)는 절대로 출력하지 마.\n" +
+                "3. 키워드는 반드시 마지막 [키워드] 태그 아래에만 작성해.\n" +
+                "4. 설명이나 부가 문장은 절대 출력하지 마.";
     	
         //Gemini 응답
         String response = geminiService.getGeminiResponse(promptRequest);
@@ -148,7 +137,20 @@ public class GeminiController {
         log.info("정제된 검색 키워드: {}", cleanStyle);
 
         // 음악 검색
-        String trackId = musicService.generateMusic(cleanStyle);
+        // 오래된 곡부터 최대 5곡을 세션에 보관하여 사용자별 반복 추천을 줄인다.
+        List<String> recentTrackIds = new ArrayList<>();
+        if (session.getAttribute("recentMusicTrackIds") instanceof List<?> savedTracks) {
+            for (Object savedTrack : savedTracks) {
+                if (savedTrack instanceof String id) recentTrackIds.add(id);
+            }
+        }
+        String trackId = musicService.generateMusic(cleanStyle, recentTrackIds);
+        if (trackId != null) {
+            recentTrackIds.remove(trackId);
+            recentTrackIds.add(trackId);
+            while (recentTrackIds.size() > 5) recentTrackIds.remove(0);
+            session.setAttribute("recentMusicTrackIds", recentTrackIds);
+        }
 
         // 곡 URL 가져오기
         String audioUrl = null;

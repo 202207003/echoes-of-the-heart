@@ -22,7 +22,6 @@
             padding-bottom: 40px;
         }
 
-        /* 1. 상단 헤더 띠 전체 영역 */
         .top-header {
             width: 100%;
             background: rgba(255, 255, 255, 0.85);
@@ -31,7 +30,6 @@
             padding: 16px 0;
         }
 
-        /* 2. 헤더 내부 콘텐츠 레이아웃 (양끝 정렬) */
         .header-container {
             max-width: 1200px;
             margin: 0 auto;
@@ -41,7 +39,6 @@
             align-items: center;
         }
 
-        /* 3. 좌측 서비스 로고 */
         .logo {
             font-size: 1.1rem;
             font-weight: 700;
@@ -49,7 +46,6 @@
             text-decoration: none;
         }
 
-        /* 4. 우측 버튼 네비게이션 영역 */
         .top-nav {
             display: flex;
             align-items: center;
@@ -83,7 +79,6 @@
             transform: translateY(-1px);
         }
 
-        /* 5. 메인 카드 영역 */
         .card {
             margin: auto 0;
             width: 100%;
@@ -135,6 +130,15 @@
             box-shadow: 0 0 0 4px rgba(108, 99, 255, 0.12);
         }
 
+        .input-hint {
+            margin-top: 10px;
+            color: #777;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            text-align: left;
+            word-break: keep-all;
+        }
+
         button {
             width: 100%;
             margin-top: 22px;
@@ -156,49 +160,81 @@
         }
 
         @media (max-width: 480px) {
-            .card { padding: 30px 20px; }
-            h1 { font-size: 1.5rem; }
+            .card {
+                padding: 30px 20px;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .header-container {
+                padding: 0 16px;
+            }
+
+            .top-nav {
+                gap: 6px;
+            }
+
+            .top-login-btn {
+                padding: 8px 10px;
+            }
         }
     </style>
 </head>
+
 <body>
 
-<!-- 상단 헤더 바 -->
 <header class="top-header">
     <div class="header-container">
-        <!-- 좌측 로고 (클릭 시 /chat 으로 이동) -->
+
         <a th:href="@{/chat}" class="logo">Music AI</a>
 
-        <!-- 우측 네비게이션 버튼 -->
         <div class="top-nav">
-            <!-- 1. 로그인 상태일 때 -->
+
             <th:block th:if="${session.username != null}">
-                <span class="user-welcome" th:text="${session.username} + '님 안녕하세요!'"></span>
+                <span class="user-welcome"
+                      th:text="${session.username} + '님 안녕하세요!'"></span>
+
                 <a th:href="@{/history}" class="top-login-btn">채팅기록</a>
                 <a th:href="@{/logout}" class="top-login-btn">로그아웃</a>
             </th:block>
 
-            <!-- 2. 로그인 안 했을 때 -->
             <th:block th:unless="${session.username != null}">
                 <a th:href="@{/login}" class="top-login-btn">로그인</a>
                 <a th:href="@{/sign}" class="top-login-btn">회원가입</a>
             </th:block>
+
         </div>
     </div>
 </header>
 
-<!-- 중앙 메인 카드 -->
 <div class="card">
+
     <h1>🎵 감정을 입력하면 시와 음악을 추천해드려요</h1>
+
     <p class="subtitle">
         오늘의 감정, 짧은 시, 떠오르는 문장을 입력해보세요.<br>
-        이후 집, 나무, 사람 이미지를 선택하면 AI가 분위기를 분석합니다.
+        다음 화면에서 마음에 끌리는 그림을 고르거나 건너뛸 수 있어요.<br>
+        입력한 감정을 중심으로 시와 음악을 추천해요.
     </p>
 
     <form th:action="@{/emotion-analysis}" method="get">
-        <textarea name="poem" placeholder="예) 오늘은 괜히 마음이 울적했다..." required></textarea>
+
+        <textarea
+            name="poem"
+            placeholder="예) 오늘은 괜히 마음이 울적했다..."
+            aria-describedby="poem-input-hint"
+            required></textarea>
+
+        <p id="poem-input-hint" class="input-hint">
+            마침표(.)·느낌표(!)·물음표(?)나 줄바꿈을 넣으면 문장을 더 정확하게 구분할 수 있어요.
+        </p>
+
         <button type="submit">감성 분석 시작하기</button>
+
     </form>
+
 </div>
 
 </body>

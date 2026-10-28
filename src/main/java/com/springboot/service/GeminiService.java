@@ -14,7 +14,7 @@ public class GeminiService {
 	
 	
     public String getGeminiResponse(String message) {
-    	 // 모델명 'gemini-2.5-flash'를 적용했습니다.
+        // 모델명 'gemini-3.5-flash-lite'를 적용했습니다.
         String apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=" + apiKey;
         RestTemplate restTemplate = new RestTemplate();
         Map<String, Object> requestBody = new HashMap<>();

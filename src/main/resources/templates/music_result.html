@@ -1,224 +1,15 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>추천 결과 - Music AI</title>
 
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            background: linear-gradient(135deg, #f7f9fc, #e9eef6);
-            font-family: 'Pretendard', sans-serif;
-            color: #222;
-            padding-bottom: 60px;
-        }
-
-        /* 1. 상단 헤더 띠 전체 영역 */
-        .top-header {
-            width: 100%;
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid #e3e6ee;
-            padding: 16px 0;
-            margin-bottom: 30px;
-        }
-
-        /* 2. 헤더 내부 콘텐츠 레이아웃 (양끝 정렬) */
-        .header-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 24px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        /* 3. 좌측 서비스 로고 */
-        .logo {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: #6c63ff;
-            text-decoration: none;
-        }
-
-        /* 4. 우측 버튼 네비게이션 영역 */
-        .top-nav {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .user-welcome {
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: #4e5968;
-            margin-right: 6px;
-        }
-
-        .top-login-btn {
-            text-decoration: none;
-            color: #4e5968;
-            font-size: 0.9rem;
-            font-weight: 600;
-            padding: 10px 18px;
-            background: white;
-            border: 1px solid #e3e6ee;
-            border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
-            transition: all 0.2s ease;
-        }
-
-        .top-login-btn:hover {
-            background: #fafbff;
-            border-color: #6c63ff;
-            color: #6c63ff;
-            transform: translateY(-1px);
-        }
-
-        /* 메인 레이아웃 */
-        .container {
-            width: 100%;
-            max-width: 760px;
-            padding: 0 20px;
-        }
-
-        .title {
-            text-align: center;
-            font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 35px;
-        }
-
-        .card {
-            background: white;
-            border-radius: 28px;
-            padding: 42px;
-            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.06);
-            transition: all 0.3s ease;
-        }
-
-        .card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.08);
-        }
-
-        .poem-card {
-            margin-bottom: 28px;
-        }
-
-        .poem-text {
-            white-space: pre-wrap;
-            line-height: 2.2;
-            font-size: 1.15rem;
-            color: #333;
-            text-align: center;
-            padding: 20px 10px;
-            font-style: italic;
-        }
-
-        .style-box {
-            margin-top: 28px;
-            text-align: center;
-            padding: 18px;
-            border-radius: 18px;
-            background: #f4f6ff;
-            color: #5a52e0;
-            font-weight: 600;
-            font-size: 1rem;
-        }
-
-        .music-card {
-            margin-top: 28px;
-            border: 1px solid #e3e6ee;
-            text-align: center;
-        }
-
-        .music-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin-bottom: 16px;
-        }
-
-        .track-info-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 16px;
-        }
-
-        .thumbnail-img {
-            max-width: 240px;
-            width: 100%;
-            border-radius: 16px;
-            margin-bottom: 20px;
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
-        }
-
-        .audio-wrapper {
-            background: #fafbff;
-            padding: 20px;
-            border-radius: 20px;
-            border: 1px dashed #dbe1ec;
-        }
-
-        audio {
-            width: 100%;
-            outline: none;
-        }
-
-        .source {
-            text-align: center;
-            margin-top: 16px;
-            font-size: 0.85rem;
-            color: #999;
-        }
-
-        .retry-btn {
-            display: block;
-            width: 230px;
-            margin: 42px auto 0;
-            padding: 17px;
-            border-radius: 16px;
-            text-align: center;
-            text-decoration: none;
-            font-weight: 600;
-            color: white;
-            background: linear-gradient(135deg, #6c63ff, #5a52e0);
-            box-shadow: 0 10px 20px rgba(108, 99, 255, 0.18);
-            transition: all 0.3s ease;
-        }
-
-        .retry-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 14px 24px rgba(108, 99, 255, 0.24);
-        }
-
-        .empty {
-            background: white;
-            padding: 45px;
-            border-radius: 24px;
-            text-align: center;
-            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.06);
-            color: #666;
-        }
-
-        @media (max-width: 480px) {
-            .title { font-size: 1.6rem; }
-            .card { padding: 30px 20px; }
-        }
-    </style>
+    <link rel="stylesheet" th:href="@{/css/app.css(v='20261104-4')}">
+    <link rel="stylesheet" th:href="@{/css/analysis-progress.css(v='20261104-3')}">
+    <script defer th:src="@{/js/request-loading.js(v='20261104-3')}"></script>
 </head>
-<body>
+<body class="result-page">
 
 <!-- 상단 헤더 바 -->
 <header class="top-header">
@@ -231,31 +22,47 @@
             <!-- 1. 로그인 상태일 때 -->
             <th:block th:if="${session.username != null}">
                 <span class="user-welcome" th:text="${session.username} + '님 안녕하세요!'"></span>
-                <a th:href="@{/history}" class="top-login-btn">채팅기록</a>
+                <a th:href="@{/history}" class="top-login-btn">나의 기록</a>
                 <a th:href="@{/logout}" class="top-login-btn">로그아웃</a>
             </th:block>
 
             <!-- 2. 로그인 안 했을 때 -->
             <th:block th:unless="${session.username != null}">
-                <a th:href="@{/login}" class="top-login-btn">로그인</a>
-                <a th:href="@{/sign}" class="top-login-btn">회원가입</a>
+                <a th:href="@{/login(resultId=${resultId})}" class="top-login-btn">로그인</a>
+                <a th:href="@{/sign(resultId=${resultId})}" class="top-login-btn">회원가입</a>
             </th:block>
         </div>
     </div>
 </header>
 
 <div class="container">
-    <h1 class="title">🎧 당신의 시를 위한 음악</h1>
+    <header class="page-heading">
+        <span class="eyebrow">YOUR PERSONAL SOUNDTRACK</span>
+        <h1 class="title">당신의 마음에 건네는 시와 음악</h1>
+        <p class="page-description">잠시 머물며, 오늘의 마음을 천천히 들어보세요.</p>
+    </header>
+
+    <p class="result-message" th:if="${resultNotice}" th:text="${resultNotice}" role="status"></p>
+    <p class="result-message error" th:if="${resultError}" th:text="${resultError}" role="alert"></p>
 
     <div class="card poem-card" th:if="${generatedPoem != null}">
+        <h2>당신을 위한 시</h2>
         <div class="poem-text" th:text="${generatedPoem}">시 내용이 여기에 표시됩니다.</div>
         <div class="style-box">
-            🎼 분석된 분위기 : <span th:text="${style}">분위기</span>
+            오늘의 분위기 · <span th:text="${style}">분위기</span>
         </div>
+        <form th:if="${resultId != null}" th:action="@{/regenerate-poem}" method="post"
+              class="regenerate-form" data-loading-title="새로운 시를 쓰고 있어요"
+              data-loading-description="음악은 그대로 두고, 같은 마음을 새로운 표현으로 담고 있어요.">
+            <input type="hidden" name="resultId" th:value="${resultId}">
+            <button type="submit" class="regenerate-btn">시 다시 생성</button>
+            <p class="regenerate-hint">음악은 유지하고, 같은 감정을 다른 표현의 시로 받아보세요.</p>
+        </form>
     </div>
 
-    <div th:if="${hasMusic}" class="card music-card">
-        <div class="music-title">🎵 추천 음악 재생</div>
+    <section class="card music-card" aria-label="추천 음악">
+        <h2 class="music-title">이 마음과 어울리는 음악</h2>
+        <th:block th:if="${hasMusic}">
 
         <!-- 트랙 제목 & 썸네일 통합 -->
         <h3 class="track-info-title" th:if="${trackTitle != null}" th:text="${trackTitle}">음악 제목</h3>
@@ -267,15 +74,26 @@
                 브라우저가 오디오 태그를 지원하지 않습니다.
             </audio>
         </div>
-        <div class="source">Free To Use Music</div>
-    </div>
+        </th:block>
+        <p th:unless="${hasMusic}" class="empty">아직 어울리는 음악을 찾지 못했어요.<br>다시 추천받아보세요.</p>
 
-    <div th:unless="${hasMusic}" class="empty">
-        😢 어울리는 음악을 찾지 못했어요.
-    </div>
-
+    <form th:if="${resultId != null}" th:action="@{/recommend-music}" method="post"
+          class="regenerate-form" data-loading-title="다른 음악을 찾고 있어요"
+          data-loading-description="시는 그대로 두고, 같은 분위기에 어울리는 다른 음악을 고르고 있어요.">
+        <input type="hidden" name="resultId" th:value="${resultId}">
+        <button type="submit" class="regenerate-btn">음악만 다시 추천</button>
+        <p class="regenerate-hint">시는 유지하고, 같은 분위기의 다른 음악을 찾아보세요.</p>
+    </form>
+    </section>
+    <p class="pending-status" id="pending-status" role="status" hidden></p>
+    <section class="save-result" th:if="${session.username == null and resultId != null}"
+             aria-label="결과 저장 안내">
+        <p>로그인하면 지금 만든 시와 음악을<br>그대로 내 기록에 저장할 수 있어요.</p>
+        <a th:href="@{/login(resultId=${resultId})}" class="save-result-btn">로그인하고 결과 저장하기</a>
+    </section>
     <a th:href="@{/chat}" class="retry-btn">다시 작성하기</a>
 </div>
 
+<div th:replace="~{fragments/request-loading :: dialog}"></div>
 </body>
 </html>

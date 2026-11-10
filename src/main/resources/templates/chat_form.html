@@ -1,191 +1,16 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Music AI</title>
 
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            row-gap: 32px;
-            background: linear-gradient(135deg, #f7f9fc, #e9eef6);
-            font-family: 'Pretendard', sans-serif;
-            padding-bottom: 40px;
-        }
-
-        .top-header {
-            width: 100%;
-            flex-shrink: 0;
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid #e3e6ee;
-            padding: 16px 0;
-        }
-
-        .header-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 24px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: #6c63ff;
-            text-decoration: none;
-        }
-
-        .top-nav {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .user-welcome {
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: #4e5968;
-            margin-right: 6px;
-        }
-
-        .top-login-btn {
-            text-decoration: none;
-            color: #4e5968;
-            font-size: 0.9rem;
-            font-weight: 600;
-            padding: 10px 18px;
-            background: white;
-            border: 1px solid #e3e6ee;
-            border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
-            transition: all 0.2s ease;
-        }
-
-        .top-login-btn:hover {
-            background: #fafbff;
-            border-color: #6c63ff;
-            color: #6c63ff;
-            transform: translateY(-1px);
-        }
-
-        .card {
-            margin: auto 0;
-            width: 100%;
-            max-width: 760px;
-            background: white;
-            padding: 52px;
-            border-radius: 28px;
-            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.06);
-            text-align: center;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.08);
-        }
-
-        h1 {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #222;
-            margin-bottom: 14px;
-            line-height: 1.4;
-        }
-
-        .subtitle {
-            color: #666;
-            margin-bottom: 34px;
-            line-height: 1.7;
-            font-size: 1rem;
-        }
-
-        textarea {
-            width: 100%;
-            min-height: 170px;
-            border: 1px solid #e3e6ee;
-            border-radius: 18px;
-            padding: 20px;
-            font-size: 1rem;
-            resize: none;
-            outline: none;
-            background: #fafbff;
-            transition: all 0.3s ease;
-        }
-
-        textarea:focus {
-            border-color: #6c63ff;
-            background: white;
-            box-shadow: 0 0 0 4px rgba(108, 99, 255, 0.12);
-        }
-
-        .input-hint {
-            margin-top: 10px;
-            color: #777;
-            font-size: 0.85rem;
-            line-height: 1.6;
-            text-align: left;
-            word-break: keep-all;
-        }
-
-        button {
-            width: 100%;
-            margin-top: 22px;
-            padding: 17px;
-            border: none;
-            border-radius: 16px;
-            background: linear-gradient(135deg, #6c63ff, #5a52e0);
-            color: white;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 10px 20px rgba(108, 99, 255, 0.18);
-        }
-
-        button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 14px 24px rgba(108, 99, 255, 0.24);
-        }
-
-        @media (max-width: 480px) {
-            .card {
-                padding: 30px 20px;
-            }
-
-            h1 {
-                font-size: 1.5rem;
-            }
-
-            .header-container {
-                padding: 0 16px;
-            }
-
-            .top-nav {
-                gap: 6px;
-            }
-
-            .top-login-btn {
-                padding: 8px 10px;
-            }
-        }
-    </style>
+    <link rel="stylesheet" th:href="@{/css/app.css(v='20261104-4')}">
+    <link rel="stylesheet" th:href="@{/css/analysis-progress.css(v='20261104-3')}">
+    <script defer th:src="@{/js/request-loading.js(v='20261104-3')}"></script>
 </head>
 
-<body>
+<body class="chat-page">
 
 <header class="top-header">
     <div class="header-container">
@@ -198,7 +23,7 @@
                 <span class="user-welcome"
                       th:text="${session.username} + '님 안녕하세요!'"></span>
 
-                <a th:href="@{/history}" class="top-login-btn">채팅기록</a>
+                <a th:href="@{/history}" class="top-login-btn">나의 기록</a>
                 <a th:href="@{/logout}" class="top-login-btn">로그아웃</a>
             </th:block>
 
@@ -213,31 +38,44 @@
 
 <div class="card">
 
-    <h1>🎵 감정을 입력하면 시와 음악을 추천해드려요</h1>
+    <span class="eyebrow">A MOMENT FOR YOUR HEART</span>
+    <h1>오늘의 마음이,<br>시와 음악이 되는 순간</h1>
 
     <p class="subtitle">
-        오늘의 감정, 짧은 시, 떠오르는 문장을 입력해보세요.<br>
-        다음 화면에서 마음에 끌리는 그림을 고르거나 건너뛸 수 있어요.<br>
-        입력한 감정을 중심으로 시와 음악을 추천해요.
+        말로 다 표현하지 못한 마음도 괜찮아요.<br>
+        짧은 문장 하나로, 당신을 위한 시와 음악을 만나보세요.
     </p>
 
-    <form th:action="@{/emotion-analysis}" method="get">
+    <ol class="flow-steps" aria-label="진행 단계">
+        <li class="active" aria-current="step"><span>1</span>마음 쓰기</li>
+        <li><span>2</span>분위기 고르기</li>
+        <li><span>3</span>시와 음악</li>
+    </ol>
 
-        <textarea
+    <form th:action="@{/emotion-analysis}" method="get"
+          data-loading-title="당신의 마음을 살펴보고 있어요"
+          data-loading-description="입력한 문장의 감정을 읽고, 어울리는 그림을 준비하고 있어요.">
+
+        <p class="generation-error" th:if="${generationError}" th:text="${generationError}" role="alert"></p>
+
+        <label for="poem-input" class="field-label">지금 어떤 마음인가요?</label>
+        <textarea id="poem-input"
             name="poem"
             placeholder="예) 오늘은 괜히 마음이 울적했다..."
             aria-describedby="poem-input-hint"
-            required></textarea>
+            required th:text="${originalPoem}"></textarea>
 
         <p id="poem-input-hint" class="input-hint">
             마침표(.)·느낌표(!)·물음표(?)나 줄바꿈을 넣으면 문장을 더 정확하게 구분할 수 있어요.
         </p>
 
-        <button type="submit">감성 분석 시작하기</button>
+        <button type="submit" class="primary-btn">내 마음에 어울리는 분위기 찾기 →</button>
 
     </form>
 
 </div>
+
+<div th:replace="~{fragments/request-loading :: dialog}"></div>
 
 </body>
 </html>

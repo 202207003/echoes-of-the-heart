@@ -36,6 +36,7 @@ public class HTPController {
         model.addAttribute("imageMood", profile);
         model.addAttribute("imageMoods", emotionImageService.moods());
         model.addAttribute("imageCategories", emotionImageService.categories(profile));
+        model.addAttribute("imagePreviews", emotionImageService.recommendations(profile, session));
 
 	    return "emotion-analysis";
 	}

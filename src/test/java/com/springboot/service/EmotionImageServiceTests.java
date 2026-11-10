@@ -1,6 +1,11 @@
 package com.springboot.service;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.mock.web.MockHttpSession;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
@@ -8,6 +13,40 @@ import static org.mockito.Mockito.*;
 class EmotionImageServiceTests {
     private final GeminiService gemini = mock(GeminiService.class);
     private final EmotionImageService service = new EmotionImageService(gemini);
+
+    @Test
+    void everyEmotionRotatesAllThreeChoicesWithoutImmediateRepeats() {
+        var session = new MockHttpSession();
+        for (var mood : service.moods()) {
+            Map<String, String> previous = new HashMap<>();
+            for (int cycle = 0; cycle < 12; cycle++) {
+                Map<String, Set<String>> seen = new HashMap<>();
+                for (int visit = 0; visit < 3; visit++) {
+                    var previews = service.recommendations(mood, session);
+                    assertEquals(3, previews.size());
+                    for (var preview : previews) {
+                        assertNotEquals(previous.put(preview.categoryId(), preview.choice().id()), preview.choice().id());
+                        assertTrue(seen.computeIfAbsent(preview.categoryId(), ignored -> new HashSet<>()).add(preview.choice().id()));
+                        assertTrue(preview.choice().imageStyle().contains("/" + mood.id() + ".png"));
+                    }
+                }
+                assertTrue(seen.values().stream().allMatch(choices -> choices.size() == 3));
+            }
+        }
+    }
+
+    @Test
+    void recommendationsDoNotChangeManualChoiceOrderAndUseSessionLocalHistory() {
+        var mood = service.profile("angry");
+        var firstSession = new MockHttpSession();
+        var secondSession = new MockHttpSession();
+        var categories = service.categories(mood);
+        service.recommendations(mood, firstSession);
+        service.recommendations(mood, secondSession);
+        assertNotSame(firstSession.getAttribute("emotionPreviewHistory"), secondSession.getAttribute("emotionPreviewHistory"));
+        assertEquals(categories, service.categories(mood));
+        assertEquals("H1", categories.getFirst().choices().getFirst().id());
+    }
 
     @Test
     void everyMoodHasThreeDistinctChoicesForEachCategory() {

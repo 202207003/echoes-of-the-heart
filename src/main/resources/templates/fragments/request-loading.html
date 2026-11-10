@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<body>
+<dialog th:fragment="dialog" id="request-loading" class="request-loading" aria-labelledby="request-loading-title"
+        aria-describedby="request-loading-description">
+    <div class="analysis-loading-icon" aria-hidden="true">♫</div>
+    <p class="loading-eyebrow">잠시만 기다려주세요</p>
+    <h2 id="request-loading-title">당신의 마음을 살펴보고 있어요</h2>
+    <p id="request-loading-description" role="status" aria-live="polite">입력한 내용에 어울리는 분위기를 찾고 있어요.</p>
+    <div class="request-loading-track" role="progressbar" aria-label="요청 처리 중">
+        <span></span>
+    </div>
+    <p class="request-loading-note">AI 응답에 따라 잠시 시간이 걸릴 수 있어요.</p>
+</dialog>
+</body>
+</html>

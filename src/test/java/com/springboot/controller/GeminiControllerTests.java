@@ -6,6 +6,7 @@ import com.springboot.service.EmotionImageService;
 import com.springboot.service.GeminiService;
 import com.springboot.service.MusicGenerationService;
 import com.springboot.service.PoemInputService;
+import com.springboot.service.GuestResultService;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.Arguments;
@@ -43,7 +44,8 @@ class GeminiControllerTests {
         MusicGenerationService music = mock(MusicGenerationService.class);
         GeminiController controller = new GeminiController(
                 gemini, mock(EmotionImageService.class), music,
-                mock(ChatHistoryService.class), mock(MemberRepository.class), new PoemInputService(gemini));
+                mock(ChatHistoryService.class), mock(MemberRepository.class), new PoemInputService(gemini),
+                mock(GuestResultService.class));
         int expectedLines = unitCount * 2;
         String generatedPoem = String.join("\n", IntStream.rangeClosed(1, expectedLines)
                 .mapToObj(i -> "마음을 담은 시 " + i).toList());

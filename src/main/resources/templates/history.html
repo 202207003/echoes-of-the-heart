@@ -4,100 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>나의 기록 - Music AI</title>
-    <link rel="stylesheet" th:href="@{/css/history.css}">
 
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
 
-        body {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            background: linear-gradient(135deg, #f7f9fc, #e9eef6);
-            font-family: 'Pretendard', sans-serif;
-            color: #222;
-            padding-bottom: 60px;
-        }
-
-        /* 1. 상단 헤더 띠 전체 영역 */
-        .top-header {
-            width: 100%;
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid #e3e6ee;
-            padding: 16px 0;
-            margin-bottom: 30px;
-        }
-
-        /* 2. 헤더 내부 콘텐츠 레이아웃 (양끝 정렬) */
-        .header-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 24px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        /* 3. 좌측 서비스 로고 */
-        .logo {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: #6c63ff;
-            text-decoration: none;
-        }
-
-        /* 4. 우측 버튼 네비게이션 영역 */
-        .top-nav {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .user-welcome {
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: #4e5968;
-            margin-right: 6px;
-        }
-
-        .top-login-btn {
-            text-decoration: none;
-            color: #4e5968;
-            font-size: 0.9rem;
-            font-weight: 600;
-            padding: 10px 18px;
-            background: white;
-            border: 1px solid #e3e6ee;
-            border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
-            transition: all 0.2s ease;
-        }
-
-        .top-login-btn:hover {
-            background: #fafbff;
-            border-color: #6c63ff;
-            color: #6c63ff;
-            transform: translateY(-1px);
-        }
-
-        .container {
-            width: 100%;
-            max-width: 760px;
-            padding: 0 20px;
-        }
-
-        @media (max-width: 480px) {
-            .header-container { padding: 0 16px; }
-        }
-    </style>
+    <link rel="stylesheet" th:href="@{/css/app.css(v='20261104-4')}">
 </head>
-<body>
+<body class="history-page">
 
 <!-- 상단 헤더 바 -->
 <header class="top-header">
@@ -110,7 +21,7 @@
             <!-- 1. 로그인 상태일 때 -->
             <th:block th:if="${session.username != null}">
                 <span class="user-welcome" th:text="${session.username} + '님 안녕하세요!'"></span>
-                <a th:href="@{/history}" class="top-login-btn">채팅기록</a>
+                <a th:href="@{/history}" class="top-login-btn" aria-current="page">나의 기록</a>
                 <a th:href="@{/logout}" class="top-login-btn">로그아웃</a>
             </th:block>
 
@@ -126,6 +37,7 @@
 <div class="container">
 
     <header class="header">
+        <span class="eyebrow">MOMENTS TO KEEP</span>
         <h1>나의 기록</h1>
         <p>생성한 시와 음악을 날짜별로 확인해보세요.</p>
     </header>
@@ -133,13 +45,13 @@
     <section class="calendar-section">
 
         <div class="calendar-header">
-            <a th:href="@{/history(date=${selectedDate.minusMonths(1)})}">&lt;</a>
+            <a th:href="@{/history(date=${selectedDate.minusMonths(1)})}" aria-label="이전 달">‹</a>
 
             <h2 th:text="${selectedDate.year + '년 ' + selectedDate.monthValue + '월'}">
                 2026년 9월
             </h2>
 
-            <a th:href="@{/history(date=${selectedDate.plusMonths(1)})}">&gt;</a>
+            <a th:href="@{/history(date=${selectedDate.plusMonths(1)})}" aria-label="다음 달">›</a>
         </div>
 
         <div class="weekdays">
@@ -154,20 +66,24 @@
 
         <div class="calendar">
 
+            <th:block th:if="${selectedDate.withDayOfMonth(1).dayOfWeek.value % 7 > 0}">
             <div
                 class="calendar-day empty"
                 th:each="i : ${#numbers.sequence(1, selectedDate.withDayOfMonth(1).dayOfWeek.value % 7)}">
             </div>
+            </th:block>
 
             <a
                 class="calendar-day"
                 th:each="day : ${#numbers.sequence(1, selectedDate.lengthOfMonth())}"
                 th:classappend="${historyDays.contains(day)} ? ' has-history' : ' no-history'"
+                th:attr="aria-current=${day == selectedDate.dayOfMonth ? 'date' : null},aria-label=${selectedDate.monthValue + '월 ' + day + '일' + (historyDays.contains(day) ? ', 저장된 기록 있음' : '')}"
                 th:href="@{/history(date=${selectedDate.withDayOfMonth(day)})}"
                 th:text="${day}">
                 1
             </a>
         </div>
+        <p class="calendar-note">작은 점이 있는 날에는 시와 음악이 저장되어 있어요.</p>
 
     </section>
 
@@ -184,6 +100,7 @@
                 class="empty-message"
                 th:if="${#lists.isEmpty(histories)}">
                 이 날짜에는 저장된 기록이 없습니다.
+                <br><a th:href="@{/chat}">새로운 마음 기록 남기기 →</a>
             </div>
 
             <a

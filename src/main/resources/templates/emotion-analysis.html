@@ -4,372 +4,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" th:href="@{/css/analysis-progress.css(v='20261104-3')}">
+    <script defer th:src="@{/js/analysis-progress.js(v='20261104-3')}"></script>
+    <script defer th:src="@{/js/emotion-selection.js(v='20261104-6')}"></script>
     <title>감정 분석</title>
 
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            min-height: 100vh;
-            background: linear-gradient(135deg, #f7f9fc, #e9eef6);
-            font-family: 'Pretendard', sans-serif;
-        }
-
-        .top-header {
-            width: 100%;
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid #e3e6ee;
-            padding: 16px 0;
-        }
-
-        .header-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 24px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: #6c63ff;
-            text-decoration: none;
-        }
-
-        .top-nav {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .user-welcome {
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: #4e5968;
-            margin-right: 6px;
-        }
-
-        .top-login-btn {
-            text-decoration: none;
-            color: #4e5968;
-            font-size: 0.9rem;
-            font-weight: 600;
-            padding: 10px 18px;
-            background: white;
-            border: 1px solid #e3e6ee;
-            border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
-            transition: all 0.2s ease;
-        }
-
-        .top-login-btn:hover {
-            background: #fafbff;
-            border-color: #6c63ff;
-            color: #6c63ff;
-            transform: translateY(-1px);
-        }
-
-        .container {
-            max-width: 1040px;
-            margin: 0 auto;
-            padding: 40px 20px;
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 35px;
-        }
-
-        .header h1 {
-            font-size: 2rem;
-            color: #222;
-            margin-bottom: 12px;
-        }
-
-        .header p {
-            color: #666;
-            line-height: 1.6;
-        }
-
-        .input-box {
-            background: white;
-            padding: 25px;
-            border-radius: 20px;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
-            margin-bottom: 30px;
-        }
-
-        .input-box h2 {
-            font-size: 1.1rem;
-            margin-bottom: 12px;
-            color: #333;
-        }
-
-        .mood-card {
-            display: grid;
-            grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
-            align-items: center;
-            gap: 20px;
-        }
-
-        .mood-content {
-            min-width: 0;
-        }
-
-        .mood-description {
-            color: #666;
-            line-height: 1.7;
-            margin-bottom: 18px;
-            font-size: 0.9rem;
-            word-break: keep-all;
-        }
-
-        .mood-controls {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .mood-controls label {
-            flex-basis: 100%;
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: #555;
-        }
-
-        .mood-controls select {
-            flex: 1 1 180px;
-            min-width: 0;
-            max-width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 10px;
-            background: white;
-            color: #333;
-            font: inherit;
-            font-size: 0.85rem;
-        }
-
-        .mood-apply {
-            flex: 1 1 155px;
-            padding: 12px 14px;
-            border: 0;
-            border-radius: 10px;
-            background: #eeeaff;
-            color: #4438a0;
-            font: inherit;
-            font-size: 0.85rem;
-            cursor: pointer;
-        }
-
-        .mood-apply:hover {
-            background: #e2dcff;
-        }
-
-        .mood-controls select:focus-visible,
-        .mood-apply:focus-visible {
-            outline: 2px solid #6c63ff;
-            outline-offset: 3px;
-        }
-
-        .mood-preview {
-            min-width: 0;
-            padding: 18px;
-            background: linear-gradient(135deg, #f8f7fc, #f0f3f8);
-            border: 1px solid #eeedf5;
-            border-radius: 16px;
-        }
-
-        .mood-preview-heading {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-bottom: 12px;
-            font-size: 0.75rem;
-            color: #747482;
-        }
-
-        .mood-preview-heading strong {
-            color: #5e5387;
-            font-weight: 600;
-        }
-
-        .mood-preview-images {
-            display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 10px;
-        }
-
-        .mood-preview-image {
-            display: block;
-            width: 100%;
-            aspect-ratio: 1;
-            border-radius: 10px;
-            background-size: 300% 300%;
-            background-color: #fafafa;
-        }
-
-        .mood-preview figcaption {
-            margin-top: 12px;
-            text-align: center;
-            font-size: 0.75rem;
-            color: #747482;
-        }
-
-        .poem-text {
-            background: #f7f8fc;
-            border-radius: 12px;
-            padding: 15px;
-            color: #555;
-            line-height: 1.6;
-            white-space: pre-wrap;
-        }
-
-        .section {
-            background: white;
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
-            margin-bottom: 25px;
-        }
-
-        .section h2 {
-            text-align: center;
-            margin-bottom: 25px;
-            color: #333;
-        }
-
-        .image-list {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
-
-        .image-option {
-            position: relative;
-        }
-
-        .image-option input {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            opacity: 0;
-        }
-
-        .image-option input:focus-visible + label {
-            outline: 2px solid #6c63ff;
-            outline-offset: 4px;
-        }
-
-        .image-option label {
-            display: block;
-            cursor: pointer;
-            border: 3px solid transparent;
-            border-radius: 14px;
-            padding: 5px;
-            transition: 0.2s ease;
-        }
-
-        .image-option .choice-image {
-            width: 180px;
-            height: 180px;
-            background-size: 300% 300%;
-            display: block;
-            border-radius: 10px;
-            background-color: #fafafa;
-        }
-
-        .image-option label:hover {
-            transform: translateY(-4px);
-        }
-
-        .image-option input:checked + label {
-            border-color: #6c63ff;
-            box-shadow: 0 0 0 4px rgba(108, 99, 255, 0.15);
-        }
-
-        .choice-name {
-            text-align: center;
-            margin-top: 8px;
-            font-weight: 600;
-            color: #555;
-        }
-
-        .skip-option {
-            flex-basis: 100%;
-            text-align: center;
-        }
-
-        .skip-option label {
-            display: inline-block;
-            padding: 12px 20px;
-            color: #555;
-            background: #f7f8fc;
-        }
-
-        .submit-button {
-            width: 100%;
-            padding: 17px;
-            border: none;
-            border-radius: 16px;
-            background: linear-gradient(135deg, #6c63ff, #5a52e0);
-            color: white;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            box-shadow: 0 10px 20px rgba(108, 99, 255, 0.18);
-            transition: 0.3s ease;
-        }
-
-        .submit-button:hover {
-            transform: translateY(-3px);
-        }
-
-        @media (max-width: 800px) {
-            .mood-card {
-                grid-template-columns: minmax(0, 1fr);
-                gap: 18px;
-            }
-        }
-
-        @media (max-width: 600px) {
-            .header-container {
-                padding: 0 16px;
-                gap: 12px;
-                flex-wrap: wrap;
-            }
-
-            .top-nav {
-                gap: 6px;
-                flex-wrap: wrap;
-            }
-
-            .top-login-btn {
-                padding: 8px 10px;
-            }
-            .section {
-                padding: 20px 15px;
-            }
-
-            .image-option .choice-image {
-                width: 130px;
-                height: 130px;
-            }
-        }
-    </style>
+    <link rel="stylesheet" th:href="@{/css/app.css(v='20261104-6')}">
 </head>
 
-<body>
+<body class="analysis-page">
 
 <header class="top-header">
     <div class="header-container">
@@ -382,7 +25,7 @@
                 <span class="user-welcome"
                       th:text="${session.username} + '님 안녕하세요!'"></span>
 
-                <a th:href="@{/history}" class="top-login-btn">채팅기록</a>
+                <a th:href="@{/history}" class="top-login-btn">나의 기록</a>
                 <a th:href="@{/logout}" class="top-login-btn">로그아웃</a>
             </th:block>
 
@@ -397,18 +40,24 @@
 
 <div class="container">
 
-	<header class="header"> 
-	    <h1>마음에 끌리는 분위기를 골라보세요</h1>
-	    <p> 
-	        집, 나무, 사람 중 지금 마음에 끌리는 그림을 골라주세요.<br>
-            맞는 그림이 없다면 각 항목에서 ‘맞는 그림이 없어요’를 선택해도 괜찮아요.<br>
-            입력한 감정을 가장 우선하고, 그림은 시와 음악의 분위기에 참고해요.
-	    </p> 
+	<header class="header">
+	    <span class="eyebrow">CHOOSE YOUR MOOD</span>
+	    <h1>지금 마음에 가까운 풍경</h1>
+	    <p>
+            추천 그림이 마음에 들면 바로 분석해보세요.<br>
+            직접 고른 그림은 입력한 감정과 함께 시와 음악의 분위기에 참고해요.
+	    </p>
+        <ol class="flow-steps" aria-label="진행 단계">
+            <li><span>1</span>마음 쓰기</li>
+            <li class="active" aria-current="step"><span>2</span>분위기 고르기</li>
+            <li><span>3</span>시와 음악</li>
+        </ol>
 	</header>
 
     <section class="input-box mood-card">
         <div class="mood-content">
-        <h2>지금 문장에 어울리는 그림</h2>
+        <p class="step-label">당신의 문장에서 찾은 분위기</p>
+        <h2>이런 풍경은 어떤가요?</h2>
         <p class="mood-description">
             <strong th:text="${imageMood.label}">분위기</strong>를 참고해 그림을 준비했어요.<br>
             입력한 내용과 그림의 분위기가 맞지 않나요? 다른 분위기를 선택해보세요.
@@ -419,34 +68,46 @@
             <select id="mood-picker" name="mood">
                 <option th:each="option : ${imageMoods}" th:value="${option.id}" th:text="${option.label}" th:selected="${option.id == imageMood.id}"></option>
             </select>
-            <button type="submit" class="mood-apply">선택한 분위기 적용</button>
+            <noscript><button type="submit" class="secondary-btn">분위기 바꾸기</button></noscript>
         </form>
         </div>
         <figure class="mood-preview" aria-label="현재 분위기의 그림 미리보기">
             <div class="mood-preview-heading">
-                <span>그림 미리보기</span>
+                <span>추천 그림 · 집 / 나무 / 사람</span>
                 <strong th:text="${imageMood.label}">분위기</strong>
             </div>
             <div class="mood-preview-images">
-                <span class="mood-preview-image" th:each="category : ${imageCategories}"
-                      role="img" th:attr="aria-label=${category.choices[0].label}"
-                      th:style="${category.choices[0].imageStyle}"></span>
+                <span class="mood-preview-image" th:each="preview : ${imagePreviews}"
+                      role="img" th:attr="aria-label=${preview.choice.label}"
+                      th:style="${preview.choice.imageStyle}"></span>
             </div>
-            <figcaption>이런 분위기의 그림을 준비했어요</figcaption>
+            <figcaption>이 세 그림이 마음에 드시나요?</figcaption>
+            <form id="quick-analysis-form" th:action="@{/create-poem-music}" method="get"
+                  th:attr="data-generation-url=@{/create-poem-music-progress},data-progress-url=@{/analysis-progress},data-result-url=@{/music-result}">
+                <input type="hidden" name="poem" th:value="${poem}">
+                <input type="hidden" name="mood" th:value="${imageMood.id}">
+                <input type="hidden" th:each="preview : ${imagePreviews}"
+                       th:name="${preview.categoryId}" th:value="${preview.choice.id}">
+                <button type="submit" class="primary-btn quick-analysis-btn">이 그림으로 바로 분석하기 →</button>
+            </form>
         </figure>
     </section>
-    <form th:action="@{/create-poem-music}" method="get">
+    <form id="analysis-form" th:action="@{/create-poem-music}" method="get"
+          th:attr="data-generation-url=@{/create-poem-music-progress},data-progress-url=@{/analysis-progress},data-result-url=@{/music-result}">
 
         <input type="hidden" name="poem" th:value="${poem}">
         <input type="hidden" name="mood" th:value="${imageMood.id}">
 
-        <section class="input-box">
-            <h2>입력한 문장</h2>
+        <details class="input-review" open>
+            <summary>내가 입력한 문장 확인하기</summary>
+            <div class="poem-text" th:text="${poem}"></div>
+        </details>
 
-            <div class="poem-text" th:text="${poem}">
-                오늘은 괜히 마음이 울적했다.
-            </div>
-        </section>
+        <div class="custom-choice-heading">
+            <h2>직접 골라도 좋아요</h2>
+            <p>집·나무·사람을 하나씩 고르거나 건너뛰세요.</p>
+        </div>
+        <p id="selection-error-summary" class="selection-error-summary" role="alert" hidden></p>
 
         <section class="section" th:each="category : ${imageCategories}" role="group" th:attr="aria-labelledby=${category.id + '-heading'}">
             <h2 th:id="${category.id + '-heading'}" th:text="${category.label + '을 선택해주세요'}">그림 선택</h2>
@@ -465,12 +126,46 @@
             </div>
         </section>
         <button type="submit" class="submit-button">
-            분석하기
+            선택한 그림으로 시와 음악 만나기 →
         </button>
 
     </form>
 
 </div>
 
+<dialog id="selection-dialog" class="selection-dialog" aria-labelledby="selection-dialog-title"
+        aria-describedby="selection-dialog-description selection-dialog-note">
+    <button type="button" class="selection-dialog-close" aria-label="안내 닫기">×</button>
+    <div class="selection-dialog-icon" aria-hidden="true">♫</div>
+    <h2 id="selection-dialog-title">아직 고르지 않은 그림이 있어요</h2>
+    <p id="selection-dialog-description">아래 항목에서 마음에 끌리는 그림을 하나씩 골라주세요.</p>
+    <ul id="selection-missing-items" class="selection-missing-items" aria-label="선택이 필요한 항목"></ul>
+    <p id="selection-dialog-note" class="selection-dialog-note">선택하지 않은 항목은 미리보기 그림으로 채워 분석할 수 있어요.<br>이미 고른 그림은 그대로 유지돼요.</p>
+    <div class="selection-dialog-actions">
+        <button type="button" class="primary-btn" id="selection-dialog-choose" autofocus>그림 선택하기</button>
+        <button type="button" class="secondary-btn" id="selection-dialog-skip">미리보기 그림으로 분석하기</button>
+    </div>
+</dialog>
+
+<dialog id="analysis-loading" class="analysis-loading" aria-labelledby="analysis-loading-title"
+        aria-describedby="analysis-progress-note">
+    <div class="analysis-loading-icon" aria-hidden="true">♫</div>
+    <h2 id="analysis-loading-title">당신의 마음을 담고 있어요</h2>
+    <p id="analysis-stage" role="status" aria-live="polite">분석 요청을 준비하고 있어요</p>
+    <div class="analysis-progress-heading">
+        <span>분석 진행률</span><strong id="analysis-percent">0%</strong>
+    </div>
+    <div id="analysis-progress-bar" class="analysis-progress-track" role="progressbar"
+         aria-label="분석 진행률" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+        <div id="analysis-progress-fill" class="analysis-progress-fill"></div>
+    </div>
+    <ol class="analysis-steps" aria-label="분석 단계">
+        <li data-threshold="10">문장 분석</li><li data-threshold="35">시 작성</li>
+        <li data-threshold="65">음악 추천</li><li data-threshold="90">결과 준비</li>
+    </ol>
+    <p id="analysis-progress-note">진행률은 처리 단계 기준이에요. AI 응답에 따라 시간이 걸릴 수 있어요.</p>
+    <p id="analysis-wait" class="analysis-wait"></p>
+    <button id="analysis-retry" type="button" hidden>돌아가서 다시 시도하기</button>
+</dialog>
 </body>
 </html>

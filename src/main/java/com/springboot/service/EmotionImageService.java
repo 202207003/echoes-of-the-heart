@@ -3,12 +3,28 @@ package com.springboot.service;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Locale;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import jakarta.servlet.http.HttpSession;
 
 @Service
 public class EmotionImageService {
     public record Mood(String id, String label, String musicStyle, List<String> captions) {}
     public record Choice(String id, String label, String imageStyle) {}
     public record Category(String id, String label, List<Choice> choices) {}
+    public record Preview(String categoryId, Choice choice) {}
+
+    private static class PreviewHistory {
+        private final Map<String, Rotation> moods = new HashMap<>();
+    }
+
+    private static class Rotation {
+        private final Map<String, ArrayDeque<String>> remaining = new HashMap<>();
+        private final Map<String, String> previous = new HashMap<>();
+    }
 
     private static final List<Mood> MOODS = List.of(
         new Mood("happy", "행복·즐거움·설렘", "Happy, Upbeat, 밝고 즐거움", List.of(
@@ -84,6 +100,36 @@ public class EmotionImageService {
         return List.of(category(mood, "house", "🏠 집", "H", 0),
                 category(mood, "tree", "🌳 나무", "T", 1),
                 category(mood, "person", "👤 사람", "P", 2));
+    }
+
+    public List<Preview> recommendations(Mood mood, HttpSession session) {
+        synchronized (session) {
+            PreviewHistory history;
+            if (session.getAttribute("emotionPreviewHistory") instanceof PreviewHistory saved) {
+                history = saved;
+            } else {
+                history = new PreviewHistory();
+                session.setAttribute("emotionPreviewHistory", history);
+            }
+            Rotation rotation = history.moods.computeIfAbsent(mood.id(), ignored -> new Rotation());
+            List<Preview> previews = new ArrayList<>();
+            for (Category category : categories(mood)) {
+                ArrayDeque<String> remaining = rotation.remaining.computeIfAbsent(category.id(), ignored -> new ArrayDeque<>());
+                if (remaining.isEmpty()) {
+                    List<String> ids = new ArrayList<>(category.choices().stream().map(Choice::id).toList());
+                    Collections.shuffle(ids);
+                    if (ids.size() > 1 && ids.getFirst().equals(rotation.previous.get(category.id()))) {
+                        Collections.rotate(ids, 1);
+                    }
+                    remaining.addAll(ids);
+                }
+                String selectedId = remaining.removeFirst();
+                rotation.previous.put(category.id(), selectedId);
+                Choice choice = category.choices().stream().filter(item -> item.id().equals(selectedId)).findFirst().orElseThrow();
+                previews.add(new Preview(category.id(), choice));
+            }
+            return List.copyOf(previews);
+        }
     }
 
     private Category category(Mood mood, String id, String label, String prefix, int row) {

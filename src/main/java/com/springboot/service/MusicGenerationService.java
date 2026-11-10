@@ -24,10 +24,12 @@ public class MusicGenerationService {
     private final WebClient webClient;
     private final String BASE_URL = "https://api.freetouse.com/v3";
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private static final int SEARCH_PAGE_SIZE = 50;
+    private static final int MAX_SEARCH_PAGES = 3;
     private static final Map<String, Set<String>> MOODS = Map.of(
-            "happy", Set.of("happy", "positive", "playful", "uplifting", "upbeat", "fun", "cheerful", "joyful"),
+            "happy", Set.of("happy", "positive", "playful", "uplifting", "upbeat", "fun", "cheerful", "joyful", "joy", "bright", "lively"),
             "calm", Set.of("calm", "peaceful", "relaxing", "chill", "meditative", "soothing", "gentle", "quiet", "slow", "downtempo"),
-            "sad", Set.of("sad", "melancholy", "melancholic", "lonely", "gloomy", "sorrowful"),
+            "sad", Set.of("sad", "melancholy", "melancholic", "lonely", "gloomy", "sorrowful", "sorrow", "somber", "sombre", "mournful"),
             "energetic", Set.of("energetic", "exciting", "hype", "powerful", "workout", "sports", "party", "fast"),
             "romantic", Set.of("romantic", "love", "tender"),
             "dramatic", Set.of("dramatic", "epic", "intense"),
@@ -45,80 +47,73 @@ public class MusicGenerationService {
         if (query.isBlank()) return null;
         Set<String> searches = new LinkedHashSet<>();
         searches.add(query);
-        // 세부 키워드 조합이 너무 좁으면 핵심 감정으로 넓혀 검색한다.
-        for (String keyword : query.toLowerCase(Locale.ROOT).split(" ")) {
-            for (String mood : moodGroups(Set.of(keyword))) {
-                String canonical = Character.toUpperCase(mood.charAt(0)) + mood.substring(1);
-                if (!canonical.equalsIgnoreCase(query)) searches.add(canonical);
-            }
-            if (searches.size() >= 3) break;
+        String primaryMood = primaryMood(query);
+        if (primaryMood != null) {
+            String canonical = Character.toUpperCase(primaryMood.charAt(0)) + primaryMood.substring(1);
+            if (!canonical.equalsIgnoreCase(query)) searches.add(canonical);
         }
+        Map<String, Integer> allCandidates = new LinkedHashMap<>();
         for (String search : searches) {
-            String trackId = searchMusic(search, query, recentTrackIds);
-            if (trackId != null) return trackId;
+            searchMusic(search, query).forEach((id, score) -> allCandidates.merge(id, score, Math::max));
         }
-        return null;
+        // Include core-mood matches from the first recommendation, even when a
+        // narrow multi-keyword search returned a single high-ranking track.
+        String trackId = chooseUnplayedTrack(allCandidates, recentTrackIds);
+        if (trackId != null) return trackId;
+        log.info("음악 후보 {}곡이 모두 최근 추천에 포함되어 가장 오래된 곡을 다시 추천합니다.", allCandidates.size());
+        // Repeat only after broader searches also have no unheard matching tracks.
+        return allCandidates.keySet().stream()
+                .min(Comparator.comparingInt(recentTrackIds::indexOf)).orElse(null);
     }
 
-    private String searchMusic(String query, String requestedStyle, List<String> recentTrackIds) {
-        log.info("Free To Use 음악 검색 시작: {}", query);
+    private String chooseUnplayedTrack(Map<String, Integer> candidates, List<String> recentTrackIds) {
+        List<Map.Entry<String, Integer>> fresh = candidates.entrySet().stream()
+                .filter(entry -> !recentTrackIds.contains(entry.getKey())).toList();
+        if (fresh.isEmpty()) return null;
+        int bestFreshScore = fresh.stream().mapToInt(Map.Entry::getValue).max().orElse(0);
+        List<String> bestFresh = fresh.stream()
+                .filter(entry -> entry.getValue() >= Math.max(0, bestFreshScore - 2))
+                .map(Map.Entry::getKey).toList();
+        return bestFresh.get(ThreadLocalRandom.current().nextInt(bestFresh.size()));
+    }
 
-        try {
-            String response = webClient.get()
-                    .uri(uriBuilder -> uriBuilder
-                            .path("/music/tracks/search")
-                            .queryParam("query", query)
-                            .queryParam("per_page", 10)
-                            .build())
-                    .retrieve()
-                    .bodyToMono(String.class)
-                    .timeout(Duration.ofSeconds(15))
-                    .block();
-
-            JsonNode root = objectMapper.readTree(response);
-            JsonNode data = root.path("data");
-
-            if (data.isArray() && data.size() > 0) {
-                Map<String, Integer> scoredTracks = new LinkedHashMap<>();
+    private Map<String, Integer> searchMusic(String query, String requestedStyle) {
+        Map<String, Integer> scoredTracks = new LinkedHashMap<>();
+        Set<String> seenIds = new HashSet<>();
+        for (int page = 0; page < MAX_SEARCH_PAGES; page++) {
+            int offset = page * SEARCH_PAGE_SIZE;
+            try {
+                String response = webClient.get()
+                        .uri(uriBuilder -> uriBuilder.path("/music/tracks/search")
+                                .queryParam("query", query)
+                                .queryParam("limit", SEARCH_PAGE_SIZE)
+                                .queryParam("offset", offset).build())
+                        .retrieve().bodyToMono(String.class)
+                        .timeout(Duration.ofSeconds(15)).block();
+                JsonNode root = objectMapper.readTree(response);
+                JsonNode data = root.path("data");
+                if (!data.isArray() || data.isEmpty()) break;
+                boolean foundNewIds = false;
                 for (JsonNode track : data) {
                     String id = track.path("id").asText("");
-                    // 재검색에서도 원래 요청의 감정 기준을 유지한다.
+                    if (id.isBlank() || !seenIds.add(id)) continue;
+                    foundNewIds = true;
                     int score = scoreTrack(track, requestedStyle);
-                    if (!id.isBlank() && score >= 0) {
-                        scoredTracks.merge(id, score, Math::max);
-                    }
+                    if (score >= 0) scoredTracks.merge(id, score, Math::max);
                 }
-                if (scoredTracks.isEmpty()) {
-                    log.info("감정 조건에 맞는 후보 없음, 핵심 감정 재검색 시도: {}", query);
-                    return null;
-                }
-                int bestScore = scoredTracks.values().stream().mapToInt(Integer::intValue).max().orElse(0);
-                // 감정 일치(10점)가 우선이며 장르 등 세부 선호(2점) 차이는 허용한다.
-                List<String> candidates = scoredTracks.entrySet().stream()
-                        .filter(entry -> entry.getValue() >= Math.max(0, bestScore - 2))
-                        .map(Map.Entry::getKey).toList();
-
-                List<String> freshCandidates = candidates.stream()
-                        .filter(id -> !recentTrackIds.contains(id))
-                        .toList();
-                // 모두 최근 추천 곡이면 가장 오래전에 추천한 곡을 선택한다.
-                String trackId = freshCandidates.isEmpty()
-                        ? candidates.stream().min(Comparator.comparingInt(recentTrackIds::indexOf)).orElseThrow()
-                        : freshCandidates.get(ThreadLocalRandom.current().nextInt(freshCandidates.size()));
-
-                log.info("음악 선택 - 검색 {}곡, 적합 후보 {}곡, 점수 {}, Track ID: {}",
-                        data.size(), candidates.size(), scoredTracks.get(trackId), trackId);
-                return trackId;
-            } else {
-                log.warn("검색 결과가 없습니다: {}", query);
+                int total = root.path("pagination").path("count").asInt(-1);
+                if (!foundNewIds || data.size() < SEARCH_PAGE_SIZE
+                        || (total >= 0 && offset + data.size() >= total)) break;
+            } catch (Exception e) {
+                log.warn("음악 검색 실패 - 검색어: {}, offset: {}", query, offset);
+                break;
             }
-        } catch (Exception e) {
-            log.error("검색 중 오류 발생: {}", e.getMessage());
         }
-        return null;
+        log.info("음악 검색 - 검색어: {}, 조회 {}곡, 감정에 맞는 후보 {}곡", query, seenIds.size(), scoredTracks.size());
+        return scoredTracks;
     }
 
-    private int scoreTrack(JsonNode track, String query) {
+    int scoreTrack(JsonNode track, String query) {
         Set<String> requested = new HashSet<>(Arrays.asList(query.toLowerCase(Locale.ROOT).split("[\\s,]+")));
         Set<String> metadata = new HashSet<>();
         collectMetadata(track.path("categories"), metadata);
@@ -128,6 +123,8 @@ public class MusicGenerationService {
 
         Set<String> requestedMoods = moodGroups(requested);
         Set<String> trackMoods = moodGroups(metadata);
+        String primaryMood = primaryMood(query);
+        if (primaryMood != null && !trackMoods.contains(primaryMood)) return -1;
         for (String mood : requestedMoods) {
             String opposite = OPPOSITES.get(mood);
             if (opposite != null && !requestedMoods.contains(opposite)
@@ -141,9 +138,19 @@ public class MusicGenerationService {
         }
         if (!requestedMoods.isEmpty() && score == 0) return -1;
         for (String keyword : requested) {
-            if (metadata.contains(keyword)) score += 2;
+            // Happy/Uplifting/Upbeat describe the same mood. Repeating synonyms
+            // must not make one track outrank all other equally happy tracks.
+            if (moodGroups(Set.of(keyword)).isEmpty() && metadata.contains(keyword)) score += 2;
         }
         return score;
+    }
+
+    private String primaryMood(String query) {
+        for (String keyword : query.toLowerCase(Locale.ROOT).split("[\\s,]+")) {
+            Set<String> groups = moodGroups(Set.of(keyword));
+            if (!groups.isEmpty()) return groups.iterator().next();
+        }
+        return null;
     }
 
     private Set<String> moodGroups(Set<String> words) {
